@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlumniMessageMapper">
+
+    <resultMap type="AlumniMessage" id="AlumniMessageResult">
+        <result property="id"    column="id"    />
+        <result property="sendUserId"    column="send_user_id"    />
+        <result property="sendUserName"    column="send_user_name"    />    <!-- 新增 -->
+        <result property="receiveUserId"    column="receive_user_id"    />
+        <result property="receiveUserName"    column="receive_user_name"    /> <!-- 新增 -->
+        <result property="msgContent"    column="msg_content"    />
+        <result property="isRead"    column="is_read"    />
+        <result property="sendTime"    column="send_time"    />
+        <result property="readTime"    column="read_time"    />
+    </resultMap>
+
+    <sql id="selectAlumniMessageVo">
+        select
+        id,
+        send_user_id,
+        send_user_name,  <!-- 新增 -->
+        receive_user_id,
+        receive_user_name, <!-- 新增 -->
+        msg_content,
+        is_read,
+        send_time,
+        read_time
+        from alumni_message
+    </sql>
+
+    <select id="selectAlumniMessageList" parameterType="AlumniMessage" resultMap="AlumniMessageResult">
+        <include refid="selectAlumniMessageVo"/>
+        <where>
+            <if test="sendUserId != null "> and send_user_id = #{sendUserId}</if>
+            <if test="sendUserName != null and sendUserName != ''"> and send_user_name = #{sendUserName}</if> <!-- 新增 -->
+            <if test="receiveUserId != null "> and receive_user_id = #{receiveUserId}</if>
+            <if test="receiveUserName != null and receiveUserName != ''"> and receive_user_name = #{receiveUserName}</if> <!-- 新增 -->
+            <if test="msgContent != null  and msgContent != ''"> and msg_content = #{msgContent}</if>
+            <if test="isRead != null "> and is_read = #{isRead}</if>
+            <if test="sendTime != null "> and send_time = #{sendTime}</if>
+            <if test="readTime != null "> and read_time = #{readTime}</if>
+        </where>
+    </select>
+
+    <select id="selectAlumniMessageById" parameterType="Long" resultMap="AlumniMessageResult">
+        <include refid="selectAlumniMessageVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAlumniMessage" parameterType="AlumniMessage" useGeneratedKeys="true" keyProperty="id">
+        insert into alumni_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sendUserId != null">send_user_id,</if>
+            <if test="sendUserName != null and sendUserName != ''">send_user_name,</if> <!-- 新增 -->
+            <if test="receiveUserId != null">receive_user_id,</if>
+            <if test="receiveUserName != null and receiveUserName != ''">receive_user_name,</if> <!-- 新增 -->
+            <if test="msgContent != null and msgContent != ''">msg_content,</if>
+            <if test="isRead != null">is_read,</if>
+            <if test="sendTime != null">send_time,</if>
+            <if test="readTime != null">read_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sendUserId != null">#{sendUserId},</if>
+            <if test="sendUserName != null and sendUserName != ''">#{sendUserName},</if> <!-- 新增 -->
+            <if test="receiveUserId != null">#{receiveUserId},</if>
+            <if test="receiveUserName != null and receiveUserName != ''">#{receiveUserName},</if> <!-- 新增 -->
+            <if test="msgContent != null and msgContent != ''">#{msgContent},</if>
+            <if test="isRead != null">#{isRead},</if>
+            <if test="sendTime != null">#{sendTime},</if>
+            <if test="readTime != null">#{readTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAlumniMessage" parameterType="AlumniMessage">
+        update alumni_message
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sendUserId != null">send_user_id = #{sendUserId},</if>
+            <if test="sendUserName != null and sendUserName != ''">send_user_name = #{sendUserName},</if> <!-- 新增 -->
+            <if test="receiveUserId != null">receive_user_id = #{receiveUserId},</if>
+            <if test="receiveUserName != null and receiveUserName != ''">receive_user_name = #{receiveUserName},</if> <!-- 新增 -->
+            <if test="msgContent != null and msgContent != ''">msg_content = #{msgContent},</if>
+            <if test="isRead != null">is_read = #{isRead},</if>
+            <if test="sendTime != null">send_time = #{sendTime},</if>
+            <if test="readTime != null">read_time = #{readTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAlumniMessageById" parameterType="Long">
+        delete from alumni_message where id = #{id}
+    </delete>
+
+    <delete id="deleteAlumniMessageByIds" parameterType="String">
+        delete from alumni_message where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.WpWxUserMapper">
+    
+    <resultMap type="WpWxUser" id="WpWxUserResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="wxOpenid"    column="wx_openid"    />
+        <result property="wxNickname"    column="wx_nickname"    />
+        <result property="wxAvatar"    column="wx_avatar"    />
+        <result property="wxGender"    column="wx_gender"    />
+        <result property="bindStatus"    column="bind_status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectWpWxUserVo">
+        select id, user_id, wx_openid, wx_nickname, wx_avatar, wx_gender, bind_status, create_by, create_time, update_by, update_time, del_flag from wp_wx_user
+    </sql>
+
+    <select id="selectWpWxUserList" parameterType="WpWxUser" resultMap="WpWxUserResult">
+        <include refid="selectWpWxUserVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="wxOpenid != null  and wxOpenid != ''"> and wx_openid = #{wxOpenid}</if>
+            <if test="wxNickname != null  and wxNickname != ''"> and wx_nickname like concat('%', #{wxNickname}, '%')</if>
+            <if test="wxAvatar != null  and wxAvatar != ''"> and wx_avatar = #{wxAvatar}</if>
+            <if test="wxGender != null "> and wx_gender = #{wxGender}</if>
+            <if test="bindStatus != null "> and bind_status = #{bindStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectWpWxUserById" parameterType="Long" resultMap="WpWxUserResult">
+        <include refid="selectWpWxUserVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertWpWxUser" parameterType="WpWxUser" useGeneratedKeys="true" keyProperty="id">
+        insert into wp_wx_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="wxOpenid != null and wxOpenid != ''">wx_openid,</if>
+            <if test="wxNickname != null">wx_nickname,</if>
+            <if test="wxAvatar != null">wx_avatar,</if>
+            <if test="wxGender != null">wx_gender,</if>
+            <if test="bindStatus != null">bind_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="wxOpenid != null and wxOpenid != ''">#{wxOpenid},</if>
+            <if test="wxNickname != null">#{wxNickname},</if>
+            <if test="wxAvatar != null">#{wxAvatar},</if>
+            <if test="wxGender != null">#{wxGender},</if>
+            <if test="bindStatus != null">#{bindStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWpWxUser" parameterType="WpWxUser">
+        update wp_wx_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="wxOpenid != null and wxOpenid != ''">wx_openid = #{wxOpenid},</if>
+            <if test="wxNickname != null">wx_nickname = #{wxNickname},</if>
+            <if test="wxAvatar != null">wx_avatar = #{wxAvatar},</if>
+            <if test="wxGender != null">wx_gender = #{wxGender},</if>
+            <if test="bindStatus != null">bind_status = #{bindStatus},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWpWxUserById" parameterType="Long">
+        delete from wp_wx_user where id = #{id}
+    </delete>
+
+    <delete id="deleteWpWxUserByIds" parameterType="String">
+        delete from wp_wx_user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

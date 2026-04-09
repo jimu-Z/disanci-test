@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.StudentResumeMapper">
+    
+    <resultMap type="StudentResume" id="StudentResumeResult">
+        <result property="id"    column="id"    />
+
+        <result property="userId"    column="user_id"    />
+        <result property="serviceProvince"    column="service_province"    />
+        <result property="serviceCity"    column="service_city"    />
+        <result property="serviceCounty"    column="service_county"    />
+        <result property="serviceUnit"    column="service_unit"    />
+        <result property="postType"    column="post_type"    />
+        <result property="admissionTime"    column="admission_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectStudentResumeVo">
+        select id,  user_id, service_province, service_city, service_county, service_unit, post_type, admission_time, create_by, create_time, update_by, update_time from student_resume
+    </sql>
+
+    <select id="selectStudentResumeList" parameterType="StudentResume" resultMap="StudentResumeResult">
+        <include refid="selectStudentResumeVo"/>
+        <where>  
+
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="serviceProvince != null  and serviceProvince != ''"> and service_province = #{serviceProvince}</if>
+            <if test="serviceCity != null  and serviceCity != ''"> and service_city = #{serviceCity}</if>
+            <if test="serviceCounty != null  and serviceCounty != ''"> and service_county = #{serviceCounty}</if>
+            <if test="serviceUnit != null  and serviceUnit != ''"> and service_unit = #{serviceUnit}</if>
+            <if test="postType != null  and postType != ''"> and post_type = #{postType}</if>
+            <if test="admissionTime != null "> and admission_time = #{admissionTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectStudentResumeById" parameterType="Long" resultMap="StudentResumeResult">
+        <include refid="selectStudentResumeVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertStudentResume" parameterType="StudentResume" useGeneratedKeys="true" keyProperty="id">
+        insert into student_resume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="userId != null">user_id,</if>
+            <if test="serviceProvince != null and serviceProvince != ''">service_province,</if>
+            <if test="serviceCity != null and serviceCity != ''">service_city,</if>
+            <if test="serviceCounty != null and serviceCounty != ''">service_county,</if>
+            <if test="serviceUnit != null and serviceUnit != ''">service_unit,</if>
+            <if test="postType != null and postType != ''">post_type,</if>
+            <if test="admissionTime != null">admission_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+            <if test="userId != null">#{userId},</if>
+            <if test="serviceProvince != null and serviceProvince != ''">#{serviceProvince},</if>
+            <if test="serviceCity != null and serviceCity != ''">#{serviceCity},</if>
+            <if test="serviceCounty != null and serviceCounty != ''">#{serviceCounty},</if>
+            <if test="serviceUnit != null and serviceUnit != ''">#{serviceUnit},</if>
+            <if test="postType != null and postType != ''">#{postType},</if>
+            <if test="admissionTime != null">#{admissionTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStudentResume" parameterType="StudentResume">
+        update student_resume
+        <trim prefix="SET" suffixOverrides=",">
+
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="serviceProvince != null and serviceProvince != ''">service_province = #{serviceProvince},</if>
+            <if test="serviceCity != null and serviceCity != ''">service_city = #{serviceCity},</if>
+            <if test="serviceCounty != null and serviceCounty != ''">service_county = #{serviceCounty},</if>
+            <if test="serviceUnit != null and serviceUnit != ''">service_unit = #{serviceUnit},</if>
+            <if test="postType != null and postType != ''">post_type = #{postType},</if>
+            <if test="admissionTime != null">admission_time = #{admissionTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteStudentResumeById" parameterType="Long">
+        delete from student_resume where id = #{id}
+    </delete>
+
+    <delete id="deleteStudentResumeByIds" parameterType="String">
+        delete from student_resume where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

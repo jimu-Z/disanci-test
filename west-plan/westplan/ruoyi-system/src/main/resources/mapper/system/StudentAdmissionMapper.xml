@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.StudentAdmissionMapper">
+
+    <resultMap type="StudentAdmission" id="StudentAdmissionResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="idCard"    column="id_card"    />
+        <result property="gender"    column="gender"    />
+        <result property="nation"    column="nation"    />
+        <result property="birthDate"    column="birth_date"    />
+        <result property="politicalStatus"    column="political_status"    />
+        <result property="college"    column="college"    />
+        <result property="major"    column="major"    />
+        <result property="schoolCcbCard"    column="school_ccb_card"    />
+        <result property="nativeProvince"    column="native_province"    />
+        <result property="nativeCity"    column="native_city"    />
+        <result property="hukouProvince"    column="hukou_province"    />
+        <result property="hukouCity"    column="hukou_city"    />
+        <result property="familyAddress"    column="family_address"    />
+        <result property="height"    column="height"    />
+        <result property="poloSize"    column="polo_size"    />
+        <result property="attendCeremony"    column="attend_ceremony"    />
+        <result property="assignProvince"    column="assign_province"    />
+        <result property="hasTeacherCert"    column="has_teacher_cert"    />
+        <result property="teacherSubject"    column="teacher_subject"    />
+        <result property="projectType"    column="project_type"    />
+        <result property="specialType"    column="special_type"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="hasCadreExp"    column="has_cadre_exp"    />
+        <result property="serviceProvince"    column="service_province"    />
+        <result property="serviceCounty"    column="service_county"    />
+        <result property="serviceUnit"    column="service_unit"    />
+        <result property="position"    column="position"    />
+        <result property="postCode"    column="post_code"    />
+        <result property="serviceAddress"    column="service_address"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="unitPhone"    column="unit_phone"    />
+        <result property="remark"    column="remark"    />
+        <result property="admitYear"    column="admitYear"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="isFriend"     column="is_friend"    />
+        <result property="friendStatus" column="friend_status" />
+    </resultMap>
+
+    <sql id="selectStudentAdmissionVo">
+        select id, user_id, user_name, id_card, gender, nation, birth_date, political_status, college, major, school_ccb_card, native_province, native_city, hukou_province, hukou_city, family_address, height, polo_size, attend_ceremony, assign_province, has_teacher_cert, teacher_subject, project_type, special_type, phone, email, has_cadre_exp, service_province, service_county, service_unit, position, post_code, service_address, contact_person, unit_phone, remark, admitYear, create_time, create_by, update_time, update_by from student_admission
+    </sql>
+
+    <select id="selectStudentAdmissionList" parameterType="StudentAdmission" resultMap="StudentAdmissionResult">
+        select
+        sa.id, sa.user_id, sa.user_name, sa.id_card, sa.gender, sa.nation, sa.birth_date,
+        sa.political_status, sa.college, sa.major, sa.school_ccb_card, sa.native_province,
+        sa.native_city, sa.hukou_province, sa.hukou_city, sa.family_address, sa.height,
+        sa.polo_size, sa.attend_ceremony, sa.assign_province, sa.has_teacher_cert,
+        sa.teacher_subject, sa.project_type, sa.special_type, sa.phone, sa.email,
+        sa.has_cadre_exp, sa.service_province, sa.service_county, sa.service_unit,
+        sa.position, sa.post_code, sa.service_address, sa.contact_person, sa.unit_phone,
+        sa.remark, sa.admitYear, sa.create_time, sa.create_by, sa.update_time, sa.update_by,
+
+        (CASE WHEN EXISTS (
+        SELECT 1 FROM friend_relation fr
+        WHERE fr.user_id = #{params.currentUserId}
+        AND fr.friend_id = sa.id
+        AND fr.status = '1'
+        ) THEN 1 ELSE 0 END) as is_friend,
+
+        IFNULL(
+        (SELECT status FROM friend_apply fa
+        WHERE fa.apply_user_id = #{params.currentUserId}
+        AND fa.target_user_id = sa.id
+        ORDER BY fa.create_time DESC LIMIT 1),
+        0
+        ) as friend_status
+
+        from student_admission sa
+
+        <where>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="idCard != null  and idCard != ''"> and id_card like concat('%', #{idCard}, '%')</if>
+            <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+            <if test="nation != null  and nation != ''"> and nation like concat('%', #{nation}, '%')</if>
+            <if test="birthDate != null "> and birth_date = #{birthDate}</if>
+            <if test="politicalStatus != null  and politicalStatus != ''"> and political_status like concat('%', #{politicalStatus}, '%')</if>
+            <if test="college != null  and college != ''"> and college like concat('%', #{college}, '%')</if>
+            <if test="major != null  and major != ''"> and major like concat('%', #{major}, '%')</if>
+            <if test="schoolCcbCard != null  and schoolCcbCard != ''"> and school_ccb_card like concat('%', #{schoolCcbCard}, '%')</if>
+            <if test="nativeProvince != null  and nativeProvince != ''"> and native_province like concat('%', #{nativeProvince}, '%')</if>
+            <if test="nativeCity != null  and nativeCity != ''"> and native_city like concat('%', #{nativeCity}, '%')</if>
+            <if test="hukouProvince != null  and hukouProvince != ''"> and hukou_province like concat('%', #{hukouProvince}, '%')</if>
+            <if test="hukouCity != null  and hukouCity != ''"> and hukou_city like concat('%', #{hukouCity}, '%')</if>
+            <if test="familyAddress != null  and familyAddress != ''"> and family_address like concat('%', #{familyAddress}, '%')</if>
+            <if test="height != null "> and height = #{height}</if>
+            <if test="poloSize != null  and poloSize != ''"> and polo_size like concat('%', #{poloSize}, '%')</if>
+            <if test="attendCeremony != null  and attendCeremony != ''"> and attend_ceremony = #{attendCeremony}</if>
+            <if test="assignProvince != null  and assignProvince != ''"> and assign_province like concat('%', #{assignProvince}, '%')</if>
+            <if test="hasTeacherCert != null  and hasTeacherCert != ''"> and has_teacher_cert = #{hasTeacherCert}</if>
+            <if test="teacherSubject != null  and teacherSubject != ''"> and teacher_subject like concat('%', #{teacherSubject}, '%')</if>
+            <if test="projectType != null  and projectType != ''"> and project_type like concat('%', #{projectType}, '%')</if>
+            <if test="specialType != null  and specialType != ''"> and special_type like concat('%', #{specialType}, '%')</if>
+            <if test="phone != null  and phone != ''"> and phone like concat('%', #{phone}, '%')</if>
+            <if test="email != null  and email != ''"> and email like concat('%', #{email}, '%')</if>
+            <if test="hasCadreExp != null  and hasCadreExp != ''"> and has_cadre_exp = #{hasCadreExp}</if>
+            <if test="serviceProvince != null  and serviceProvince != ''"> and service_province like concat('%', #{serviceProvince}, '%')</if>
+            <if test="serviceCounty != null  and serviceCounty != ''"> and service_county like concat('%', #{serviceCounty}, '%')</if>
+            <if test="serviceUnit != null  and serviceUnit != ''"> and service_unit like concat('%', #{serviceUnit}, '%')</if>
+            <if test="position != null  and position != ''"> and position like concat('%', #{position}, '%')</if>
+            <if test="postCode != null  and postCode != ''"> and post_code like concat('%', #{postCode}, '%')</if>
+            <if test="serviceAddress != null  and serviceAddress != ''"> and service_address like concat('%', #{serviceAddress}, '%')</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and contact_person like concat('%', #{contactPerson}, '%')</if>
+            <if test="unitPhone != null  and unitPhone != ''"> and unit_phone like concat('%', #{unitPhone}, '%')</if>
+            <if test="admitYear != null and admitYear !='' "> and admitYear = #{admitYear}</if>
+        </where>
+    </select>
+    <select id="selectStudentAdmissionById" parameterType="Long" resultMap="StudentAdmissionResult">
+        <include refid="selectStudentAdmissionVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectStudentAdmissionByUserId" parameterType="Long" resultMap="StudentAdmissionResult">
+        <include refid="selectStudentAdmissionVo"/>
+        where user_id = #{id}
+    </select>
+
+    <insert id="insertStudentAdmission" parameterType="StudentAdmission" useGeneratedKeys="true" keyProperty="id">
+        insert into student_admission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="idCard != null and idCard != ''">id_card,</if>
+            <if test="gender != null">gender,</if>
+            <if test="nation != null">nation,</if>
+            <if test="birthDate != null">birth_date,</if>
+            <if test="politicalStatus != null">political_status,</if>
+            <if test="college != null">college,</if>
+            <if test="major != null">major,</if>
+            <if test="schoolCcbCard != null">school_ccb_card,</if>
+            <if test="nativeProvince != null">native_province,</if>
+            <if test="nativeCity != null">native_city,</if>
+            <if test="hukouProvince != null">hukou_province,</if>
+            <if test="hukouCity != null">hukou_city,</if>
+            <if test="familyAddress != null">family_address,</if>
+            <if test="height != null">height,</if>
+            <if test="poloSize != null">polo_size,</if>
+            <if test="attendCeremony != null">attend_ceremony,</if>
+            <if test="assignProvince != null">assign_province,</if>
+            <if test="hasTeacherCert != null">has_teacher_cert,</if>
+            <if test="teacherSubject != null">teacher_subject,</if>
+            <if test="projectType != null">project_type,</if>
+            <if test="specialType != null">special_type,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="hasCadreExp != null">has_cadre_exp,</if>
+            <if test="serviceProvince != null">service_province,</if>
+            <if test="serviceCounty != null">service_county,</if>
+            <if test="serviceUnit != null">service_unit,</if>
+            <if test="position != null">position,</if>
+            <if test="postCode != null">post_code,</if>
+            <if test="serviceAddress != null">service_address,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="unitPhone != null">unit_phone,</if>
+            <if test="remark != null">remark,</if>
+            <if test="admitYear != null and admitYear !=''">admitYear,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="idCard != null and idCard != ''">#{idCard},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="nation != null">#{nation},</if>
+            <if test="birthDate != null">#{birthDate},</if>
+            <if test="politicalStatus != null">#{politicalStatus},</if>
+            <if test="college != null">#{college},</if>
+            <if test="major != null">#{major},</if>
+            <if test="schoolCcbCard != null">#{schoolCcbCard},</if>
+            <if test="nativeProvince != null">#{nativeProvince},</if>
+            <if test="nativeCity != null">#{nativeCity},</if>
+            <if test="hukouProvince != null">#{hukouProvince},</if>
+            <if test="hukouCity != null">#{hukouCity},</if>
+            <if test="familyAddress != null">#{familyAddress},</if>
+            <if test="height != null">#{height},</if>
+            <if test="poloSize != null">#{poloSize},</if>
+            <if test="attendCeremony != null">#{attendCeremony},</if>
+            <if test="assignProvince != null">#{assignProvince},</if>
+            <if test="hasTeacherCert != null">#{hasTeacherCert},</if>
+            <if test="teacherSubject != null">#{teacherSubject},</if>
+            <if test="projectType != null">#{projectType},</if>
+            <if test="specialType != null">#{specialType},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="hasCadreExp != null">#{hasCadreExp},</if>
+            <if test="serviceProvince != null">#{serviceProvince},</if>
+            <if test="serviceCounty != null">#{serviceCounty},</if>
+            <if test="serviceUnit != null">#{serviceUnit},</if>
+            <if test="position != null">#{position},</if>
+            <if test="postCode != null">#{postCode},</if>
+            <if test="serviceAddress != null">#{serviceAddress},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="unitPhone != null">#{unitPhone},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="admitYear != null and admitYear !=''">#{admitYear},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateStudentAdmission" parameterType="StudentAdmission">
+        update student_admission
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="nation != null">nation = #{nation},</if>
+            <if test="birthDate != null">birth_date = #{birthDate},</if>
+            <if test="politicalStatus != null">political_status = #{politicalStatus},</if>
+            <if test="college != null">college = #{college},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="schoolCcbCard != null">school_ccb_card = #{schoolCcbCard},</if>
+            <if test="nativeProvince != null">native_province = #{nativeProvince},</if>
+            <if test="nativeCity != null">native_city = #{nativeCity},</if>
+            <if test="hukouProvince != null">hukou_province = #{hukouProvince},</if>
+            <if test="hukouCity != null">hukou_city = #{hukouCity},</if>
+            <if test="familyAddress != null">family_address = #{familyAddress},</if>
+            <if test="height != null">height = #{height},</if>
+            <if test="poloSize != null">polo_size = #{poloSize},</if>
+            <if test="attendCeremony != null">attend_ceremony = #{attendCeremony},</if>
+            <if test="assignProvince != null">assign_province = #{assignProvince},</if>
+            <if test="hasTeacherCert != null">has_teacher_cert = #{hasTeacherCert},</if>
+            <if test="teacherSubject != null">teacher_subject = #{teacherSubject},</if>
+            <if test="projectType != null">project_type = #{projectType},</if>
+            <if test="specialType != null">special_type = #{specialType},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="hasCadreExp != null">has_cadre_exp = #{hasCadreExp},</if>
+            <if test="serviceProvince != null">service_province = #{serviceProvince},</if>
+            <if test="serviceCounty != null">service_county = #{serviceCounty},</if>
+            <if test="serviceUnit != null">service_unit = #{serviceUnit},</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="serviceAddress != null">service_address = #{serviceAddress},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="unitPhone != null">unit_phone = #{unitPhone},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="admitYear != null and admitYear !=''">admitYear = #{admitYear},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteStudentAdmissionById" parameterType="Long">
+        delete from student_admission where id = #{id}
+    </delete>
+
+    <delete id="deleteStudentAdmissionByIds" parameterType="String">
+        delete from student_admission where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="countStudentAdmission"  resultType="Long">
+        SELECT COUNT(*)   FROM Student_Admission
+    </select>
+
+</mapper>

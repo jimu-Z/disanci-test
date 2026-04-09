@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlumniVideoMapper">
+    
+    <resultMap type="AlumniVideo" id="AlumniVideoResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="videoName"    column="video_name"    />
+        <result property="videoUrl"    column="video_url"    />
+        <result property="coverUrl"    column="cover_url"    />
+        <result property="videoDesc"    column="video_desc"    />
+        <result property="playCount"    column="play_count"    />
+        <result property="isPublic"    column="is_public"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectAlumniVideoVo">
+        select id, user_id, video_name, video_url, cover_url, video_desc, play_count, is_public, create_time, update_time from alumni_video
+    </sql>
+
+    <select id="selectAlumniVideoList" parameterType="AlumniVideo" resultMap="AlumniVideoResult">
+        <include refid="selectAlumniVideoVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="videoName != null  and videoName != ''"> and video_name like concat('%', #{videoName}, '%')</if>
+            <if test="videoUrl != null  and videoUrl != ''"> and video_url = #{videoUrl}</if>
+            <if test="coverUrl != null  and coverUrl != ''"> and cover_url = #{coverUrl}</if>
+            <if test="videoDesc != null  and videoDesc != ''"> and video_desc = #{videoDesc}</if>
+            <if test="playCount != null "> and play_count = #{playCount}</if>
+            <if test="isPublic != null "> and is_public = #{isPublic}</if>
+        </where>
+    </select>
+    
+    <select id="selectAlumniVideoById" parameterType="Long" resultMap="AlumniVideoResult">
+        <include refid="selectAlumniVideoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAlumniVideo" parameterType="AlumniVideo" useGeneratedKeys="true" keyProperty="id">
+        insert into alumni_video
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="videoName != null and videoName != ''">video_name,</if>
+            <if test="videoUrl != null and videoUrl != ''">video_url,</if>
+            <if test="coverUrl != null">cover_url,</if>
+            <if test="videoDesc != null">video_desc,</if>
+            <if test="playCount != null">play_count,</if>
+            <if test="isPublic != null">is_public,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="videoName != null and videoName != ''">#{videoName},</if>
+            <if test="videoUrl != null and videoUrl != ''">#{videoUrl},</if>
+            <if test="coverUrl != null">#{coverUrl},</if>
+            <if test="videoDesc != null">#{videoDesc},</if>
+            <if test="playCount != null">#{playCount},</if>
+            <if test="isPublic != null">#{isPublic},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAlumniVideo" parameterType="AlumniVideo">
+        update alumni_video
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="videoName != null and videoName != ''">video_name = #{videoName},</if>
+            <if test="videoUrl != null and videoUrl != ''">video_url = #{videoUrl},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="videoDesc != null">video_desc = #{videoDesc},</if>
+            <if test="playCount != null">play_count = #{playCount},</if>
+            <if test="isPublic != null">is_public = #{isPublic},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAlumniVideoById" parameterType="Long">
+        delete from alumni_video where id = #{id}
+    </delete>
+
+    <delete id="deleteAlumniVideoByIds" parameterType="String">
+        delete from alumni_video where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.StudentApplyMapper">
+    
+    <resultMap type="StudentApply" id="StudentApplyResult">
+        <result property="id"    column="id"    />
+        <result property="applyNo"    column="apply_no"    />
+        <result property="userName"    column="user_name"    />
+        <result property="gender"    column="gender"    />
+        <result property="idCard"    column="id_card"    />
+        <result property="birthDate"    column="birth_date"    />
+        <result property="nation"    column="nation"    />
+        <result property="politicalStatus"    column="political_status"    />
+        <result property="education"    column="education"    />
+        <result property="degree"    column="degree"    />
+        <result property="schoolProvince"    column="school_province"    />
+        <result property="schoolName"    column="school_name"    />
+        <result property="college"    column="college"    />
+        <result property="major"    column="major"    />
+        <result property="majorType"    column="major_type"    />
+        <result property="userId"    column="user_id"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="nativePlace"    column="native_place"    />
+        <result property="familyLocation"    column="family_location"    />
+        <result property="detailedAddress"    column="detailed_address"    />
+        <result property="hasTeacherCert"    column="has_teacher_cert"    />
+        <result property="teacherSubject"    column="teacher_subject"    />
+        <result property="hasCadreExp"    column="has_cadre_exp"    />
+        <result property="cadreExpDesc"    column="cadre_exp_desc"    />
+        <result property="awards"    column="awards"    />
+        <result property="volunteerExp"    column="volunteer_exp"    />
+        <result property="otherDesc"    column="other_desc"    />
+        <result property="intention1"    column="intention1"    />
+        <result property="intention1Project"    column="intention1_project"    />
+        <result property="intention1Province"    column="intention1_province"    />
+        <result property="intention1Special"    column="intention1_special"    />
+        <result property="intention2"    column="intention2"    />
+        <result property="intention2Project"    column="intention2_project"    />
+        <result property="intention2Province"    column="intention2_province"    />
+        <result property="intention2Special"    column="intention2_special"    />
+        <result property="intention3"    column="intention3"    />
+        <result property="intention3Project"    column="intention3_project"    />
+        <result property="intention3Province"    column="intention3_province"    />
+        <result property="intention3Special"    column="intention3_special"    />
+        <result property="serviceYears"    column="service_years"    />
+        <result property="acceptAdjust"    column="accept_adjust"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectStudentApplyVo">
+        select id, apply_no, user_name, gender, id_card, birth_date, nation, political_status, education, degree, school_province, school_name, college, major, major_type, user_id, phone, email, native_place, family_location, detailed_address, has_teacher_cert, teacher_subject, has_cadre_exp, cadre_exp_desc, awards, volunteer_exp, other_desc, intention1, intention1_project, intention1_province, intention1_special, intention2, intention2_project, intention2_province, intention2_special, intention3, intention3_project, intention3_province, intention3_special, service_years, accept_adjust, create_time, create_by, update_time, update_by from student_apply
+    </sql>
+
+    <select id="selectStudentApplyList" parameterType="StudentApply" resultMap="StudentApplyResult">
+        <include refid="selectStudentApplyVo"/>
+        <where>  
+            <if test="applyNo != null  and applyNo != ''"> and apply_no = #{applyNo}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+            <if test="idCard != null  and idCard != ''"> and id_card = #{idCard}</if>
+            <if test="birthDate != null "> and birth_date = #{birthDate}</if>
+            <if test="nation != null  and nation != ''"> and nation = #{nation}</if>
+            <if test="politicalStatus != null  and politicalStatus != ''"> and political_status = #{politicalStatus}</if>
+            <if test="education != null  and education != ''"> and education = #{education}</if>
+            <if test="degree != null  and degree != ''"> and degree = #{degree}</if>
+            <if test="schoolProvince != null  and schoolProvince != ''"> and school_province = #{schoolProvince}</if>
+            <if test="schoolName != null  and schoolName != ''"> and school_name like concat('%', #{schoolName}, '%')</if>
+            <if test="college != null  and college != ''"> and college = #{college}</if>
+            <if test="major != null  and major != ''"> and major = #{major}</if>
+            <if test="majorType != null  and majorType != ''"> and major_type = #{majorType}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="nativePlace != null  and nativePlace != ''"> and native_place = #{nativePlace}</if>
+            <if test="familyLocation != null  and familyLocation != ''"> and family_location = #{familyLocation}</if>
+            <if test="detailedAddress != null  and detailedAddress != ''"> and detailed_address = #{detailedAddress}</if>
+            <if test="hasTeacherCert != null  and hasTeacherCert != ''"> and has_teacher_cert = #{hasTeacherCert}</if>
+            <if test="teacherSubject != null  and teacherSubject != ''"> and teacher_subject = #{teacherSubject}</if>
+            <if test="hasCadreExp != null  and hasCadreExp != ''"> and has_cadre_exp = #{hasCadreExp}</if>
+            <if test="cadreExpDesc != null  and cadreExpDesc != ''"> and cadre_exp_desc = #{cadreExpDesc}</if>
+            <if test="awards != null  and awards != ''"> and awards = #{awards}</if>
+            <if test="volunteerExp != null  and volunteerExp != ''"> and volunteer_exp = #{volunteerExp}</if>
+            <if test="otherDesc != null  and otherDesc != ''"> and other_desc = #{otherDesc}</if>
+            <if test="intention1 != null  and intention1 != ''"> and intention1 = #{intention1}</if>
+            <if test="intention1Project != null  and intention1Project != ''"> and intention1_project = #{intention1Project}</if>
+            <if test="intention1Province != null  and intention1Province != ''"> and intention1_province = #{intention1Province}</if>
+            <if test="intention1Special != null  and intention1Special != ''"> and intention1_special = #{intention1Special}</if>
+            <if test="intention2 != null  and intention2 != ''"> and intention2 = #{intention2}</if>
+            <if test="intention2Project != null  and intention2Project != ''"> and intention2_project = #{intention2Project}</if>
+            <if test="intention2Province != null  and intention2Province != ''"> and intention2_province = #{intention2Province}</if>
+            <if test="intention2Special != null  and intention2Special != ''"> and intention2_special = #{intention2Special}</if>
+            <if test="intention3 != null  and intention3 != ''"> and intention3 = #{intention3}</if>
+            <if test="intention3Project != null  and intention3Project != ''"> and intention3_project = #{intention3Project}</if>
+            <if test="intention3Province != null  and intention3Province != ''"> and intention3_province = #{intention3Province}</if>
+            <if test="intention3Special != null  and intention3Special != ''"> and intention3_special = #{intention3Special}</if>
+            <if test="serviceYears != null  and serviceYears != ''"> and service_years = #{serviceYears}</if>
+            <if test="acceptAdjust != null  and acceptAdjust != ''"> and accept_adjust = #{acceptAdjust}</if>
+        </where>
+    </select>
+    
+    <select id="selectStudentApplyByUserId" parameterType="Long" resultMap="StudentApplyResult">
+        <include refid="selectStudentApplyVo"/>
+        where user_id = #{id}
+    </select>
+    <select id="selectStudentApplyById" parameterType="Long" resultMap="StudentApplyResult">
+        <include refid="selectStudentApplyVo"/>
+        where id = #{id}
+    </select>
+    <insert id="insertStudentApply" parameterType="StudentApply" useGeneratedKeys="true" keyProperty="id">
+        insert into student_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyNo != null">apply_no,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="gender != null">gender,</if>
+            <if test="idCard != null">id_card,</if>
+            <if test="birthDate != null">birth_date,</if>
+            <if test="nation != null">nation,</if>
+            <if test="politicalStatus != null">political_status,</if>
+            <if test="education != null">education,</if>
+            <if test="degree != null">degree,</if>
+            <if test="schoolProvince != null">school_province,</if>
+            <if test="schoolName != null">school_name,</if>
+            <if test="college != null">college,</if>
+            <if test="major != null">major,</if>
+            <if test="majorType != null">major_type,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="nativePlace != null">native_place,</if>
+            <if test="familyLocation != null">family_location,</if>
+            <if test="detailedAddress != null">detailed_address,</if>
+            <if test="hasTeacherCert != null">has_teacher_cert,</if>
+            <if test="teacherSubject != null">teacher_subject,</if>
+            <if test="hasCadreExp != null">has_cadre_exp,</if>
+            <if test="cadreExpDesc != null">cadre_exp_desc,</if>
+            <if test="awards != null">awards,</if>
+            <if test="volunteerExp != null">volunteer_exp,</if>
+            <if test="otherDesc != null">other_desc,</if>
+            <if test="intention1 != null">intention1,</if>
+            <if test="intention1Project != null">intention1_project,</if>
+            <if test="intention1Province != null">intention1_province,</if>
+            <if test="intention1Special != null">intention1_special,</if>
+            <if test="intention2 != null">intention2,</if>
+            <if test="intention2Project != null">intention2_project,</if>
+            <if test="intention2Province != null">intention2_province,</if>
+            <if test="intention2Special != null">intention2_special,</if>
+            <if test="intention3 != null">intention3,</if>
+            <if test="intention3Project != null">intention3_project,</if>
+            <if test="intention3Province != null">intention3_province,</if>
+            <if test="intention3Special != null">intention3_special,</if>
+            <if test="serviceYears != null">service_years,</if>
+            <if test="acceptAdjust != null">accept_adjust,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyNo != null">#{applyNo},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="idCard != null">#{idCard},</if>
+            <if test="birthDate != null">#{birthDate},</if>
+            <if test="nation != null">#{nation},</if>
+            <if test="politicalStatus != null">#{politicalStatus},</if>
+            <if test="education != null">#{education},</if>
+            <if test="degree != null">#{degree},</if>
+            <if test="schoolProvince != null">#{schoolProvince},</if>
+            <if test="schoolName != null">#{schoolName},</if>
+            <if test="college != null">#{college},</if>
+            <if test="major != null">#{major},</if>
+            <if test="majorType != null">#{majorType},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="nativePlace != null">#{nativePlace},</if>
+            <if test="familyLocation != null">#{familyLocation},</if>
+            <if test="detailedAddress != null">#{detailedAddress},</if>
+            <if test="hasTeacherCert != null">#{hasTeacherCert},</if>
+            <if test="teacherSubject != null">#{teacherSubject},</if>
+            <if test="hasCadreExp != null">#{hasCadreExp},</if>
+            <if test="cadreExpDesc != null">#{cadreExpDesc},</if>
+            <if test="awards != null">#{awards},</if>
+            <if test="volunteerExp != null">#{volunteerExp},</if>
+            <if test="otherDesc != null">#{otherDesc},</if>
+            <if test="intention1 != null">#{intention1},</if>
+            <if test="intention1Project != null">#{intention1Project},</if>
+            <if test="intention1Province != null">#{intention1Province},</if>
+            <if test="intention1Special != null">#{intention1Special},</if>
+            <if test="intention2 != null">#{intention2},</if>
+            <if test="intention2Project != null">#{intention2Project},</if>
+            <if test="intention2Province != null">#{intention2Province},</if>
+            <if test="intention2Special != null">#{intention2Special},</if>
+            <if test="intention3 != null">#{intention3},</if>
+            <if test="intention3Project != null">#{intention3Project},</if>
+            <if test="intention3Province != null">#{intention3Province},</if>
+            <if test="intention3Special != null">#{intention3Special},</if>
+            <if test="serviceYears != null">#{serviceYears},</if>
+            <if test="acceptAdjust != null">#{acceptAdjust},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStudentApply" parameterType="StudentApply">
+        update student_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="applyNo != null">apply_no = #{applyNo},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="idCard != null">id_card = #{idCard},</if>
+            <if test="birthDate != null">birth_date = #{birthDate},</if>
+            <if test="nation != null">nation = #{nation},</if>
+            <if test="politicalStatus != null">political_status = #{politicalStatus},</if>
+            <if test="education != null">education = #{education},</if>
+            <if test="degree != null">degree = #{degree},</if>
+            <if test="schoolProvince != null">school_province = #{schoolProvince},</if>
+            <if test="schoolName != null">school_name = #{schoolName},</if>
+            <if test="college != null">college = #{college},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="majorType != null">major_type = #{majorType},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="nativePlace != null">native_place = #{nativePlace},</if>
+            <if test="familyLocation != null">family_location = #{familyLocation},</if>
+            <if test="detailedAddress != null">detailed_address = #{detailedAddress},</if>
+            <if test="hasTeacherCert != null">has_teacher_cert = #{hasTeacherCert},</if>
+            <if test="teacherSubject != null">teacher_subject = #{teacherSubject},</if>
+            <if test="hasCadreExp != null">has_cadre_exp = #{hasCadreExp},</if>
+            <if test="cadreExpDesc != null">cadre_exp_desc = #{cadreExpDesc},</if>
+            <if test="awards != null">awards = #{awards},</if>
+            <if test="volunteerExp != null">volunteer_exp = #{volunteerExp},</if>
+            <if test="otherDesc != null">other_desc = #{otherDesc},</if>
+            <if test="intention1 != null">intention1 = #{intention1},</if>
+            <if test="intention1Project != null">intention1_project = #{intention1Project},</if>
+            <if test="intention1Province != null">intention1_province = #{intention1Province},</if>
+            <if test="intention1Special != null">intention1_special = #{intention1Special},</if>
+            <if test="intention2 != null">intention2 = #{intention2},</if>
+            <if test="intention2Project != null">intention2_project = #{intention2Project},</if>
+            <if test="intention2Province != null">intention2_province = #{intention2Province},</if>
+            <if test="intention2Special != null">intention2_special = #{intention2Special},</if>
+            <if test="intention3 != null">intention3 = #{intention3},</if>
+            <if test="intention3Project != null">intention3_project = #{intention3Project},</if>
+            <if test="intention3Province != null">intention3_province = #{intention3Province},</if>
+            <if test="intention3Special != null">intention3_special = #{intention3Special},</if>
+            <if test="serviceYears != null">service_years = #{serviceYears},</if>
+            <if test="acceptAdjust != null">accept_adjust = #{acceptAdjust},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteStudentApplyById" parameterType="Long">
+        delete from student_apply where id = #{id}
+    </delete>
+
+    <delete id="deleteStudentApplyByIds" parameterType="String">
+        delete from student_apply where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

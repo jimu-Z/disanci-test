@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CommonInteractMapper">
+    
+    <resultMap type="CommonInteract" id="CommonInteractResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="interactType"    column="interact_type"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectCommonInteractVo">
+        select id, user_id, target_type, target_id, interact_type, create_time from common_interact
+    </sql>
+
+    <select id="selectCommonInteractList" parameterType="CommonInteract" resultMap="CommonInteractResult">
+        <include refid="selectCommonInteractVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="targetType != null "> and target_type = #{targetType}</if>
+            <if test="targetId != null "> and target_id = #{targetId}</if>
+            <if test="interactType != null "> and interact_type = #{interactType}</if>
+        </where>
+    </select>
+    
+    <select id="selectCommonInteractById" parameterType="Long" resultMap="CommonInteractResult">
+        <include refid="selectCommonInteractVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectInteractByUser"   resultMap="CommonInteractResult">
+        <include refid="selectCommonInteractVo"/>
+        where
+        user_id = #{userId}
+        AND target_type = #{targetType}
+        AND target_id = #{targetId}
+        AND interact_type = #{interactType}
+        LIMIT 1
+
+    </select>
+    <insert id="insertCommonInteract" parameterType="CommonInteract" useGeneratedKeys="true" keyProperty="id">
+        insert into common_interact
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="interactType != null">interact_type,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="interactType != null">#{interactType},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCommonInteract" parameterType="CommonInteract">
+        update common_interact
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="targetType != null">target_type = #{targetType},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="interactType != null">interact_type = #{interactType},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCommonInteractById" parameterType="Long">
+        delete from common_interact where id = #{id}
+    </delete>
+
+    <delete id="deleteCommonInteractByIds" parameterType="String">
+        delete from common_interact where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteInteractByTargetIds" parameterType="map">
+        DELETE FROM common_interact
+        WHERE target_type = #{targetType,jdbcType=INTEGER}
+        AND target_id IN
+        <foreach collection="targetIds" item="id" open="(" separator="," close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+    <delete id="deleteInteractByUser">
+        DELETE FROM common_interact
+        WHERE
+            user_id = #{userId}
+          AND target_type = #{targetType}
+          AND target_id = #{targetId}
+          AND interact_type = #{interactType}
+    </delete>
+</mapper>

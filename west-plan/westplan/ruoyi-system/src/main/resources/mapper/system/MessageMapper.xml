@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MessageMapper">
+
+    <resultMap type="Message" id="MessageResultMap">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="content" column="content"/>
+        <result property="contact" column="contact"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="replyTime" column="reply_time"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <!-- 管理员分页查询全部 + 条件搜索 -->
+    <select id="selectAll" parameterType="Message" resultMap="MessageResultMap">
+        SELECT id,user_id,nickname,content,contact,reply_content,reply_time,
+        status,create_time,is_deleted
+        FROM message
+        <where>
+            <if test="userId != null and userId != ''"> AND user_id = #{userId} </if>
+            <if test="nickname != null and nickname != ''"> AND nickname = #{nickname} </if>
+            <if test="content != null and content != ''"> AND content LIKE CONCAT('%',#{content},'%') </if>
+            <if test="status != null "> AND status = #{status} </if>
+            AND is_deleted = 0
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 用户查询自己的留言 -->
+    <select id="selectMyMessage" resultMap="MessageResultMap">
+        SELECT id,user_id,nickname,content,contact,reply_content,reply_time,
+               status,create_time,is_deleted
+        FROM message
+        WHERE is_deleted=0 AND user_id=#{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据ID查询单条 -->
+    <select id="getMessageById" resultMap="MessageResultMap">
+        SELECT id,user_id,nickname,content,contact,reply_content,reply_time,
+               status,create_time,is_deleted
+        FROM message
+        WHERE id=#{id} AND is_deleted=0
+    </select>
+
+    <!-- 新增留言 -->
+    <insert id="insert">
+        INSERT INTO message(user_id,nickname,content,contact)
+        VALUES(#{userId},#{nickname},#{content},#{contact})
+    </insert>
+
+    <!-- 管理员回复 -->
+    <update id="replyMessage">
+        UPDATE message
+        SET reply_content=#{replyContent}, reply_time=NOW(), status=1
+        WHERE id=#{id}
+    </update>
+
+    <!-- 逻辑删除（不是物理删除！） -->
+    <update id="deleteById">
+        UPDATE message SET is_deleted=1 WHERE id=#{id}
+    </update>
+
+</mapper>

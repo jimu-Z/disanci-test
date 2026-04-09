@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.WxMpConfigMapper">
+    
+    <resultMap type="WxMpConfig" id="WxMpConfigResult">
+        <result property="id"    column="id"    />
+        <result property="appId"    column="app_id"    />
+        <result property="appSecret"    column="app_secret"    />
+        <result property="token"    column="token"    />
+        <result property="aesKey"    column="aes_key"    />
+        <result property="loginRedirectUrl"    column="login_redirect_url"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectWxMpConfigVo">
+        select id, app_id, app_secret, token, aes_key, login_redirect_url, status, create_by, create_time, update_by, update_time, remark from wx_mp_config
+    </sql>
+
+    <select id="selectWxMpConfigList" parameterType="WxMpConfig" resultMap="WxMpConfigResult">
+        <include refid="selectWxMpConfigVo"/>
+        <where>  
+            <if test="appId != null  and appId != ''"> and app_id = #{appId}</if>
+            <if test="appSecret != null  and appSecret != ''"> and app_secret = #{appSecret}</if>
+            <if test="token != null  and token != ''"> and token = #{token}</if>
+            <if test="aesKey != null  and aesKey != ''"> and aes_key = #{aesKey}</if>
+            <if test="loginRedirectUrl != null  and loginRedirectUrl != ''"> and login_redirect_url = #{loginRedirectUrl}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxMpConfigById" parameterType="Long" resultMap="WxMpConfigResult">
+        <include refid="selectWxMpConfigVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertWxMpConfig" parameterType="WxMpConfig" useGeneratedKeys="true" keyProperty="id">
+        insert into wx_mp_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="appId != null and appId != ''">app_id,</if>
+            <if test="appSecret != null and appSecret != ''">app_secret,</if>
+            <if test="token != null and token != ''">token,</if>
+            <if test="aesKey != null">aes_key,</if>
+            <if test="loginRedirectUrl != null and loginRedirectUrl != ''">login_redirect_url,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="appId != null and appId != ''">#{appId},</if>
+            <if test="appSecret != null and appSecret != ''">#{appSecret},</if>
+            <if test="token != null and token != ''">#{token},</if>
+            <if test="aesKey != null">#{aesKey},</if>
+            <if test="loginRedirectUrl != null and loginRedirectUrl != ''">#{loginRedirectUrl},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxMpConfig" parameterType="WxMpConfig">
+        update wx_mp_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="appId != null and appId != ''">app_id = #{appId},</if>
+            <if test="appSecret != null and appSecret != ''">app_secret = #{appSecret},</if>
+            <if test="token != null and token != ''">token = #{token},</if>
+            <if test="aesKey != null">aes_key = #{aesKey},</if>
+            <if test="loginRedirectUrl != null and loginRedirectUrl != ''">login_redirect_url = #{loginRedirectUrl},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxMpConfigById" parameterType="Long">
+        delete from wx_mp_config where id = #{id}
+    </delete>
+
+    <delete id="deleteWxMpConfigByIds" parameterType="String">
+        delete from wx_mp_config where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

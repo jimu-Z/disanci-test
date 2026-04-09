@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlumniFeelingReplyMapper">
+    
+    <resultMap type="AlumniFeelingReply" id="AlumniFeelingReplyResult">
+        <result property="id"    column="id"    />
+        <result property="commentId"    column="comment_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="content"    column="content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectAlumniFeelingReplyVo">
+        select id, comment_id, user_id, user_name, content, create_time, status from alumni_feeling_reply
+    </sql>
+
+    <select id="selectAlumniFeelingReplyList" parameterType="AlumniFeelingReply" resultMap="AlumniFeelingReplyResult">
+        <include refid="selectAlumniFeelingReplyVo"/>
+        <where>  
+            <if test="commentId != null "> and comment_id = #{commentId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectAlumniFeelingReplyById" parameterType="Long" resultMap="AlumniFeelingReplyResult">
+        <include refid="selectAlumniFeelingReplyVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAlumniFeelingReply" parameterType="AlumniFeelingReply" useGeneratedKeys="true" keyProperty="id">
+        insert into alumni_feeling_reply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="commentId != null">comment_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="commentId != null">#{commentId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAlumniFeelingReply" parameterType="AlumniFeelingReply">
+        update alumni_feeling_reply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="commentId != null">comment_id = #{commentId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAlumniFeelingReplyById" parameterType="Long">
+        delete from alumni_feeling_reply where id = #{id}
+    </delete>
+
+    <delete id="deleteAlumniFeelingReplyByIds" parameterType="String">
+        delete from alumni_feeling_reply where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 根据评论ID查询回复列表 -->
+    <select id="selectReplyByCommentId" resultMap="AlumniFeelingReplyResult">
+        SELECT id, comment_id, user_id, user_name, content, create_time
+        FROM alumni_feeling_reply
+        WHERE comment_id = #{commentId} AND status = 1
+        ORDER BY create_time ASC
+    </select>
+</mapper>

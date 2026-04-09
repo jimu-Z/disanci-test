@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ContentAuditMapper">
+    
+    <resultMap type="ContentAudit" id="ContentAuditResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="contentType"    column="content_type"    />
+        <result property="contentId"    column="content_id"    />
+        <result property="contentContent"    column="content_content"    />
+        <result property="keywordAudit"    column="keyword_audit"    />
+        <result property="aiAudit"    column="ai_audit"    />
+        <result property="auditResult"    column="audit_result"    />
+        <result property="auditMsg"    column="audit_msg"    />
+        <result property="alarmStatus"    column="alarm_status"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectContentAuditVo">
+        select id, user_id, content_type, content_id, content_content, keyword_audit, ai_audit, audit_result, audit_msg, alarm_status, create_time from content_audit
+    </sql>
+
+    <select id="selectContentAuditList" parameterType="ContentAudit" resultMap="ContentAuditResult">
+        <include refid="selectContentAuditVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="contentType != null "> and content_type = #{contentType}</if>
+            <if test="contentId != null "> and content_id = #{contentId}</if>
+            <if test="contentContent != null  and contentContent != ''"> and content_content = #{contentContent}</if>
+            <if test="keywordAudit != null "> and keyword_audit = #{keywordAudit}</if>
+            <if test="aiAudit != null "> and ai_audit = #{aiAudit}</if>
+            <if test="auditResult != null "> and audit_result = #{auditResult}</if>
+            <if test="auditMsg != null  and auditMsg != ''"> and audit_msg = #{auditMsg}</if>
+            <if test="alarmStatus != null "> and alarm_status = #{alarmStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectContentAuditById" parameterType="Long" resultMap="ContentAuditResult">
+        <include refid="selectContentAuditVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertContentAudit" parameterType="ContentAudit" useGeneratedKeys="true" keyProperty="id">
+        insert into content_audit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="contentType != null">content_type,</if>
+            <if test="contentId != null">content_id,</if>
+            <if test="contentContent != null">content_content,</if>
+            <if test="keywordAudit != null">keyword_audit,</if>
+            <if test="aiAudit != null">ai_audit,</if>
+            <if test="auditResult != null">audit_result,</if>
+            <if test="auditMsg != null">audit_msg,</if>
+            <if test="alarmStatus != null">alarm_status,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="contentType != null">#{contentType},</if>
+            <if test="contentId != null">#{contentId},</if>
+            <if test="contentContent != null">#{contentContent},</if>
+            <if test="keywordAudit != null">#{keywordAudit},</if>
+            <if test="aiAudit != null">#{aiAudit},</if>
+            <if test="auditResult != null">#{auditResult},</if>
+            <if test="auditMsg != null">#{auditMsg},</if>
+            <if test="alarmStatus != null">#{alarmStatus},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateContentAudit" parameterType="ContentAudit">
+        update content_audit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="contentType != null">content_type = #{contentType},</if>
+            <if test="contentId != null">content_id = #{contentId},</if>
+            <if test="contentContent != null">content_content = #{contentContent},</if>
+            <if test="keywordAudit != null">keyword_audit = #{keywordAudit},</if>
+            <if test="aiAudit != null">ai_audit = #{aiAudit},</if>
+            <if test="auditResult != null">audit_result = #{auditResult},</if>
+            <if test="auditMsg != null">audit_msg = #{auditMsg},</if>
+            <if test="alarmStatus != null">alarm_status = #{alarmStatus},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteContentAuditById" parameterType="Long">
+        delete from content_audit where id = #{id}
+    </delete>
+
+    <delete id="deleteContentAuditByIds" parameterType="String">
+        delete from content_audit where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

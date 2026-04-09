@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlumniFeelingLikeMapper">
+    
+    <resultMap type="AlumniFeelingLike" id="AlumniFeelingLikeResult">
+        <result property="id"    column="id"    />
+        <result property="feelingId"    column="feeling_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectAlumniFeelingLikeVo">
+        select id, feeling_id, user_id, create_time, status from alumni_feeling_like
+    </sql>
+
+    <select id="selectAlumniFeelingLikeList" parameterType="AlumniFeelingLike" resultMap="AlumniFeelingLikeResult">
+        <include refid="selectAlumniFeelingLikeVo"/>
+        <where>  
+            <if test="feelingId != null "> and feeling_id = #{feelingId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectAlumniFeelingLikeById" parameterType="Long" resultMap="AlumniFeelingLikeResult">
+        <include refid="selectAlumniFeelingLikeVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAlumniFeelingLike" parameterType="AlumniFeelingLike" useGeneratedKeys="true" keyProperty="id">
+        insert into alumni_feeling_like
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="feelingId != null">feeling_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="feelingId != null">#{feelingId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAlumniFeelingLike" parameterType="AlumniFeelingLike">
+        update alumni_feeling_like
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="feelingId != null">feeling_id = #{feelingId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAlumniFeelingLikeById" parameterType="Long">
+        delete from alumni_feeling_like where id = #{id}
+    </delete>
+
+    <delete id="deleteAlumniFeelingLikeByIds" parameterType="String">
+        delete from alumni_feeling_like where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <update id="updateLikeStatus">
+        UPDATE alumni_feeling_like
+        SET status = #{status}
+        WHERE feeling_id = #{feelingId} AND user_id = #{userId}
+    </update>
+
+    <!-- 查询用户是否点赞 -->
+    <select id="selectLikeByFeelingAndUser" resultMap="AlumniFeelingLikeResult">
+        SELECT id, feeling_id, user_id, create_time, status
+        FROM alumni_feeling_like
+        WHERE feeling_id = #{feelingId} AND user_id = #{userId}
+    </select>
+</mapper>

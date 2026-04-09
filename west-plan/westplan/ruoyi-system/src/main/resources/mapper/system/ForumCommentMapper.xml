@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ForumCommentMapper">
+    
+    <resultMap type="ForumComment" id="ForumCommentResult">
+        <result property="id"    column="id"    />
+        <result property="postId"    column="post_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="commentContent"    column="comment_content"    />
+        <result property="likeCount"    column="like_count"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectForumCommentVo">
+        select id, post_id, user_id, parent_id, comment_content, like_count, audit_status, create_time, update_time from forum_comment
+    </sql>
+
+    <select id="selectForumCommentList" parameterType="ForumComment" resultMap="ForumCommentResult">
+        <include refid="selectForumCommentVo"/>
+        <where>  
+            <if test="postId != null "> and post_id = #{postId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="commentContent != null  and commentContent != ''"> and comment_content = #{commentContent}</if>
+            <if test="likeCount != null "> and like_count = #{likeCount}</if>
+            <if test="auditStatus != null "> and audit_status = #{auditStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectByPrimaryKey" parameterType="Long" resultMap="ForumCommentResult">
+        <include refid="selectForumCommentVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="ForumComment" useGeneratedKeys="true" keyProperty="id">
+        insert into forum_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="postId != null">post_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="commentContent != null and commentContent != ''">comment_content,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="postId != null">#{postId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="commentContent != null and commentContent != ''">#{commentContent},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateForumComment" parameterType="ForumComment">
+        update forum_comment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="postId != null">post_id = #{postId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="commentContent != null and commentContent != ''">comment_content = #{commentContent},</if>
+            <if test="likeCount != null">like_count = #{likeCount},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCommentById" parameterType="Long">
+        delete from forum_comment where id = #{id}
+    </delete>
+
+    <delete id="deleteCommentByPostId" parameterType="Long">
+        delete from forum_comment where post_id = #{postid}
+    </delete>
+
+    <delete id="deleteForumCommentByIds" parameterType="String">
+        delete from forum_comment where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteCommentByPostIds" parameterType="String">
+        delete from forum_comment where post_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 根据帖子ID查询评论树形列表 -->
+    <select id="selectCommentListByPostId" resultMap="ForumCommentResult">
+        select c.*, u.nick_name, u.avatar, pu.nick_name as parent_nick
+        from forum_comment c
+                 left join sys_user u on c.user_id = u.user_id
+                 left join sys_user pu on c.parent_id != 0 and c.parent_id = pu.user_id
+        where c.post_id = #{postId} and c.audit_status = 1
+        order by c.create_time asc
+    </select>
+    <select id="selectChildCommentByParentId" resultMap="ForumCommentResult">
+        select c.*, u.nick_name, u.avatar, pu.nick_name as parent_nick
+        from forum_comment c
+                 left join sys_user u on c.user_id = u.user_id
+                 left join sys_user pu on c.parent_id != 0 and c.parent_id = pu.user_id
+        where c.parent_id = #{parentId}
+        order by c.create_time asc
+    </select>
+
+    <!-- 点赞数自增 -->
+    <update id="incrementLikeCount">
+        update forum_comment set like_count = like_count + 1 where id = #{id}
+    </update>
+
+    <!-- 点赞数自减 -->
+    <update id="decrementLikeCount">
+        update forum_comment set like_count = like_count - 1 where id = #{id} and like_count > 0
+    </update>
+</mapper>

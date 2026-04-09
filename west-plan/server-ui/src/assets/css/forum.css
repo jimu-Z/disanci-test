@@ -1,0 +1,82 @@
+/* 论坛通用容器 */
+.forum-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+/* 卡片通用样式 */
+.forum-card {
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
+}
+/* 帖子标题 */
+.forum-post-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.forum-post-title:hover {
+  color: #409eff;
+}
+/* 帖子元信息（作者、时间、浏览量等） */
+.forum-post-meta {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+/* 话题标签 */
+.forum-tag {
+  display: inline-block;
+  background: #e6f7ff;
+  color: #409eff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+/* 附件样式 */
+.forum-attach {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.forum-attach-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.forum-attach-item:hover {
+  background: #e5e7eb;
+}
+/* 树形评论缩进（核心） */
+.comment-tree {
+  margin-left: 20px;
+  padding-left: 20px;
+  border-left: 1px dashed #e5e7eb;
+}
+/* 富文本编辑器高度 */
+.ql-editor {
+  min-height: 300px;
+}
+/* 评论项样式 */
+.comment-item {
+  transition: all 0.3s;
+}
+.comment-item:hover {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
+}

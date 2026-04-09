@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlumniFeelingCommentMapper">
+    
+    <resultMap type="AlumniFeelingComment" id="AlumniFeelingCommentResult">
+        <result property="id"    column="id"    />
+        <result property="feelingId"    column="feeling_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="userAvatar"    column="user_avatar"    />
+        <result property="content"    column="content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectAlumniFeelingCommentVo">
+        select id, feeling_id, user_id, user_name, user_avatar, content, create_time, status from alumni_feeling_comment
+    </sql>
+
+    <select id="selectAlumniFeelingCommentList" parameterType="AlumniFeelingComment" resultMap="AlumniFeelingCommentResult">
+        <include refid="selectAlumniFeelingCommentVo"/>
+        <where>  
+            <if test="feelingId != null "> and feeling_id = #{feelingId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="userAvatar != null  and userAvatar != ''"> and user_avatar = #{userAvatar}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectAlumniFeelingCommentById" parameterType="Long" resultMap="AlumniFeelingCommentResult">
+        <include refid="selectAlumniFeelingCommentVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAlumniFeelingComment" parameterType="AlumniFeelingComment" useGeneratedKeys="true" keyProperty="id">
+        insert into alumni_feeling_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="feelingId != null">feeling_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="userAvatar != null">user_avatar,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="feelingId != null">#{feelingId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="userAvatar != null">#{userAvatar},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAlumniFeelingComment" parameterType="AlumniFeelingComment">
+        update alumni_feeling_comment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="feelingId != null">feeling_id = #{feelingId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="userAvatar != null">user_avatar = #{userAvatar},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAlumniFeelingCommentById" parameterType="Long">
+        delete from alumni_feeling_comment where id = #{id}
+    </delete>
+
+    <delete id="deleteAlumniFeelingCommentByIds" parameterType="String">
+        delete from alumni_feeling_comment where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 根据感悟ID查询评论列表 -->
+    <select id="selectCommentByFeelingId"  resultMap="AlumniFeelingCommentResult">
+        <include refid="selectAlumniFeelingCommentVo"/>
+        WHERE feeling_id = #{feelingId} AND status = 1
+        ORDER BY create_time DESC
+    </select>
+</mapper>

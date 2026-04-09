@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.FriendRelationMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="FriendRelationResultMap" type="FriendRelation">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="friend_id" property="friendId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 学生信息简易映射（用于查询我的好友列表） -->
+    <resultMap id="StudentAdmissionResultMap" type="StudentAdmission">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="phone" property="phone"/>
+        <result column="id_card" property="idCard"/>
+        <result column="service_region" property="serviceRegion"/>
+        <result column="school" property="school"/>
+        <result column="major" property="major"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- ===================== 基础CRUD ===================== -->
+    <!-- 新增单向好友关系 -->
+    <insert id="insertOneRelation" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO friend_relation (user_id, friend_id, status)
+        VALUES (#{userId}, #{friendId}, 1)
+    </insert>
+
+    <!-- 判断是否为正式好友 -->
+    <select id="countIsFriend" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM friend_relation
+        WHERE user_id = #{userId}
+          AND friend_id = #{friendId}
+          AND status = 1
+    </select>
+
+    <!-- 查询我的所有正式好友（关联学生表） -->
+    <select id="selectMyRealFriend" resultMap="StudentAdmissionResultMap">
+        SELECT s.*
+        FROM student_admission s
+                 INNER JOIN friend_relation f
+                            ON s.id = f.friend_id
+        WHERE f.user_id = #{userId}
+          AND f.status = 1
+        ORDER BY f.create_time DESC
+    </select>
+    <!--    查询好友详细信息-->
+    <select id="selectByIdStudentAdmission" resultType="com.ruoyi.system.domain.StudentAdmission">
+        SELECT s.*
+        FROM student_admission s
+                 INNER JOIN friend_relation f
+                            ON s.id = f.friend_id
+        WHERE f.user_id = #{userId}
+          AND f.friend_id = #{friendId}
+          AND f.status = 1
+    </select>
+
+    <!-- 删除好友（修改状态） -->
+    <update id="updateFriendStatus">
+        UPDATE friend_relation
+        SET status = 2
+        WHERE user_id = #{userId}
+          AND friend_id = #{friendId}
+    </update>
+
+</mapper>

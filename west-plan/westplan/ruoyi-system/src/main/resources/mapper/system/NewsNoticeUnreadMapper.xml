@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.NewsNoticeUnreadMapper">
+    
+    <resultMap type="NewsNoticeUnread" id="NewsNoticeUnreadResult">
+        <result property="id"    column="id"    />
+        <result property="noticeId"    column="notice_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectNewsNoticeUnreadVo">
+        select id, notice_id, user_id, create_time from news_notice_unread
+    </sql>
+
+    <select id="selectNewsNoticeUnreadList" parameterType="NewsNoticeUnread" resultMap="NewsNoticeUnreadResult">
+        <include refid="selectNewsNoticeUnreadVo"/>
+        <where>  
+            <if test="noticeId != null "> and notice_id = #{noticeId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+    </select>
+    
+    <select id="selectNewsNoticeUnreadById" parameterType="Long" resultMap="NewsNoticeUnreadResult">
+        <include refid="selectNewsNoticeUnreadVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertNewsNoticeUnread" parameterType="NewsNoticeUnread" useGeneratedKeys="true" keyProperty="id">
+        insert into news_notice_unread
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="noticeId != null">notice_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="noticeId != null">#{noticeId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNewsNoticeUnread" parameterType="NewsNoticeUnread">
+        update news_notice_unread
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="noticeId != null">notice_id = #{noticeId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteNewsNoticeUnreadById" parameterType="Long">
+        delete from news_notice_unread where id = #{id}
+    </delete>
+
+    <delete id="deleteNewsNoticeUnreadByIds" parameterType="String">
+        delete from news_notice_unread where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

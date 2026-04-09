@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.QuestionBankMapper">
+    
+    <resultMap type="QuestionBank" id="QuestionBankResult">
+        <result property="id"    column="id"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="batch"    column="batch"    />
+        <result property="questionContent"    column="question_content"    />
+        <result property="correctAnswer"    column="correct_answer"    />
+        <result property="openStartTime"    column="open_start_time"    />
+        <result property="openEndTime"    column="open_end_time"    />
+        <result property="status"    column="status"    />
+        <result property="sort"    column="sort"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectQuestionBankVo">
+        select id, bank_name, batch, question_content, correct_answer, open_start_time, open_end_time, status, sort, create_by, create_time, update_by, update_time, remark from question_bank
+    </sql>
+
+    <select id="selectQuestionBankList" parameterType="QuestionBank" resultMap="QuestionBankResult">
+        <include refid="selectQuestionBankVo"/>
+        <where>  
+            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>
+            <if test="batch != null  and batch != ''"> and batch = #{batch}</if>
+            <if test="questionContent != null  and questionContent != ''"> and question_content = #{questionContent}</if>
+            <if test="correctAnswer != null  and correctAnswer != ''"> and correct_answer = #{correctAnswer}</if>
+            <if test="openStartTime != null "> and open_start_time = #{openStartTime}</if>
+            <if test="openEndTime != null "> and open_end_time = #{openEndTime}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="sort != null "> and sort = #{sort}</if>
+        </where>
+    </select>
+    
+    <select id="selectQuestionBankById" parameterType="Long" resultMap="QuestionBankResult">
+        <include refid="selectQuestionBankVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertQuestionBank" parameterType="QuestionBank" useGeneratedKeys="true" keyProperty="id">
+        insert into question_bank
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bankName != null and bankName != ''">bank_name,</if>
+            <if test="batch != null and batch != ''">batch,</if>
+            <if test="questionContent != null and questionContent != ''">question_content,</if>
+            <if test="correctAnswer != null">correct_answer,</if>
+            <if test="openStartTime != null">open_start_time,</if>
+            <if test="openEndTime != null">open_end_time,</if>
+            <if test="status != null">status,</if>
+            <if test="sort != null">sort,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bankName != null and bankName != ''">#{bankName},</if>
+            <if test="batch != null and batch != ''">#{batch},</if>
+            <if test="questionContent != null and questionContent != ''">#{questionContent},</if>
+            <if test="correctAnswer != null">#{correctAnswer},</if>
+            <if test="openStartTime != null">#{openStartTime},</if>
+            <if test="openEndTime != null">#{openEndTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateQuestionBank" parameterType="QuestionBank">
+        update question_bank
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bankName != null and bankName != ''">bank_name = #{bankName},</if>
+            <if test="batch != null and batch != ''">batch = #{batch},</if>
+            <if test="questionContent != null and questionContent != ''">question_content = #{questionContent},</if>
+            <if test="correctAnswer != null">correct_answer = #{correctAnswer},</if>
+            <if test="openStartTime != null">open_start_time = #{openStartTime},</if>
+            <if test="openEndTime != null">open_end_time = #{openEndTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQuestionBankById" parameterType="Long">
+        delete from question_bank where id = #{id}
+    </delete>
+
+    <delete id="deleteQuestionBankByIds" parameterType="String">
+        delete from question_bank where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
