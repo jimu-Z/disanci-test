@@ -10,7 +10,6 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.BeanValidators;
-import com.ruoyi.system.domain.StudentApply;
 import com.ruoyi.system.domain.SysUserRole;
 import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
@@ -53,7 +52,7 @@ public class StudentAdmissionServiceImpl implements IStudentAdmissionService
 
     @Autowired
     private ISysDeptService deptService;
-    private static final Logger log = LoggerFactory.getLogger(StudentApplyServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(StudentAdmissionServiceImpl.class);
     /**
      * 查询学生录取信息
      * 
@@ -129,9 +128,11 @@ public class StudentAdmissionServiceImpl implements IStudentAdmissionService
     }
     private void insertUser(StudentAdmission student, boolean isUpdateSupport, String operName){
         try{
+            if (StringUtils.isBlank(student.getUserId()) || !StringUtils.isNumeric(student.getUserId())) {
+                throw new ServiceException("学号必须为数字格式，无法同步系统用户");
+            }
             //构建用户信息，插入用户表
             SysUser user = new SysUser();
-            user.setUserId(Long.parseLong(student.getUserId()) );
             user.setUserName(student.getUserId());//学号
             SysDept dept = new SysDept();
             dept.setDeptName(student.getCollege());
@@ -173,11 +174,18 @@ public class StudentAdmissionServiceImpl implements IStudentAdmissionService
 
             }
             u=userMapper.selectUserByUserName(user.getUserName());
+            if (StringUtils.isNull(u)) {
+                throw new ServiceException("系统用户同步失败，请检查学号和学院信息是否有效");
+            }
             //给用户分配权限
             insertUserRole(u.getUserId(), new Long[]{Long.valueOf(configService.selectConfigByKey("sys.user.role.alumni"))});
 
         }catch (Exception e){
             log.error("用户信息插入异常",e);
+            if (e instanceof ServiceException) {
+                throw (ServiceException) e;
+            }
+            throw new ServiceException(e.getMessage());
         }
 
     }
@@ -227,7 +235,10 @@ public class StudentAdmissionServiceImpl implements IStudentAdmissionService
             try
             {
                           // 根据学号验证是否存在这个用户
-                StudentAdmission u = studentAdmissionMapper.selectStudentAdmissionByUserId(Long.parseLong(student.getUserId()) );
+                if (StringUtils.isBlank(student.getUserId()) || !StringUtils.isNumeric(student.getUserId())) {
+                    throw new ServiceException("学号必须为数字格式");
+                }
+                StudentAdmission u = studentAdmissionMapper.selectStudentAdmissionByUserId(Long.parseLong(student.getUserId()));
                 if (StringUtils.isNull(u))//没有申请信息
                 {
                     BeanValidators.validateWithException(validator, student);

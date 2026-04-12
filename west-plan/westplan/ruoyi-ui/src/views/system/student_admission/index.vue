@@ -6,6 +6,7 @@
           v-model="queryParams.userId"
           placeholder="请输入学号"
           clearable
+          style="width: 200px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -14,126 +15,7 @@
           v-model="queryParams.userName"
           placeholder="请输入学生姓名"
           clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="身份证号" prop="idCard">
-        <el-input
-          v-model="queryParams.idCard"
-          placeholder="请输入身份证号"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="性别" prop="gender">
-        <el-input
-          v-model="queryParams.gender"
-          placeholder="请输入性别"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="民族" prop="nation">
-        <el-input
-          v-model="queryParams.nation"
-          placeholder="请输入民族"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="出生年月" prop="birthDate">
-        <el-date-picker clearable
-          v-model="queryParams.birthDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择出生年月">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="学院/系名称" prop="college">
-        <el-input
-          v-model="queryParams.college"
-          placeholder="请输入学院/系名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="专业全称" prop="major">
-        <el-input
-          v-model="queryParams.major"
-          placeholder="请输入专业全称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="学校建行卡号" prop="schoolCcbCard">
-        <el-input
-          v-model="queryParams.schoolCcbCard"
-          placeholder="请输入学校建行卡号"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="籍贯省(区、市)" prop="nativeProvince">
-        <el-input
-          v-model="queryParams.nativeProvince"
-          placeholder="请输入籍贯省(区、市)"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="籍贯市(地、州)" prop="nativeCity">
-        <el-input
-          v-model="queryParams.nativeCity"
-          placeholder="请输入籍贯市(地、州)"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="户籍地省(区、市)" prop="hukouProvince">
-        <el-input
-          v-model="queryParams.hukouProvince"
-          placeholder="请输入户籍地省(区、市)"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="户籍地市(地、州)" prop="hukouCity">
-        <el-input
-          v-model="queryParams.hukouCity"
-          placeholder="请输入户籍地市(地、州)"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="家庭住址" prop="familyAddress">
-        <el-input
-          v-model="queryParams.familyAddress"
-          placeholder="请输入家庭住址"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="身高" prop="height">
-        <el-input
-          v-model="queryParams.height"
-          placeholder="请输入身高"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="志愿者polo衫尺码" prop="poloSize">
-        <el-input
-          v-model="queryParams.poloSize"
-          placeholder="请输入志愿者polo衫尺码"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否参加出征仪式" prop="attendCeremony">
-        <el-input
-          v-model="queryParams.attendCeremony"
-          placeholder="请输入是否参加出征仪式"
-          clearable
+          style="width: 200px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -142,54 +24,7 @@
           v-model="queryParams.assignProvince"
           placeholder="请输入分配省份"
           clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否有教师资格证" prop="hasTeacherCert">
-        <el-input
-          v-model="queryParams.hasTeacherCert"
-          placeholder="请输入是否有教师资格证"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="学段学科" prop="teacherSubject">
-        <el-input
-          v-model="queryParams.teacherSubject"
-          placeholder="请输入学段学科"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="联系方式" prop="phone">
-        <el-input
-          v-model="queryParams.phone"
-          placeholder="请输入联系方式"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="电子邮箱" prop="email">
-        <el-input
-          v-model="queryParams.email"
-          placeholder="请输入电子邮箱"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否有学生干部经历" prop="hasCadreExp">
-        <el-input
-          v-model="queryParams.hasCadreExp"
-          placeholder="请输入是否有学生干部经历"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="服务省份" prop="serviceProvince">
-        <el-input
-          v-model="queryParams.serviceProvince"
-          placeholder="请输入服务省份"
-          clearable
+          style="width: 200px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -198,54 +33,7 @@
           v-model="queryParams.serviceCounty"
           placeholder="请输入服务县"
           clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="服务单位" prop="serviceUnit">
-        <el-input
-          v-model="queryParams.serviceUnit"
-          placeholder="请输入服务单位"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="职位" prop="position">
-        <el-input
-          v-model="queryParams.position"
-          placeholder="请输入职位"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="岗位编号" prop="postCode">
-        <el-input
-          v-model="queryParams.postCode"
-          placeholder="请输入岗位编号"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="服务单位地址" prop="serviceAddress">
-        <el-input
-          v-model="queryParams.serviceAddress"
-          placeholder="请输入服务单位地址"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="服务单位联系人" prop="contactPerson">
-        <el-input
-          v-model="queryParams.contactPerson"
-          placeholder="请输入服务单位联系人"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="单位联系电话" prop="unitPhone">
-        <el-input
-          v-model="queryParams.unitPhone"
-          placeholder="请输入单位联系电话"
-          clearable
+          style="width: 200px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -253,6 +41,7 @@
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
+    </el-form>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
@@ -295,7 +84,7 @@
           icon="el-icon-upload"
           size="mini"
           @click="handleImport"
-          v-hasPermi="['system:student_admission:Import']"
+          v-hasPermi="['system:student_admission:import']"
         >导入</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -313,46 +102,18 @@
 
     <el-table v-loading="loading" :data="student_admissionList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="表主键，自增序号" align="center" prop="id" />
-      <el-table-column label="学号" align="center" prop="userId" />
-      <el-table-column label="学生姓名" align="center" prop="userName" />
-      <el-table-column label="身份证号" align="center" prop="idCard" />
-      <el-table-column label="性别" align="center" prop="gender" />
-      <el-table-column label="民族" align="center" prop="nation" />
-      <el-table-column label="出生年月" align="center" prop="birthDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.birthDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="政治面貌" align="center" prop="politicalStatus" />
-      <el-table-column label="学院/系名称" align="center" prop="college" />
-      <el-table-column label="专业全称" align="center" prop="major" />
-      <el-table-column label="学校建行卡号" align="center" prop="schoolCcbCard" />
-      <el-table-column label="籍贯省(区、市)" align="center" prop="nativeProvince" />
-      <el-table-column label="籍贯市(地、州)" align="center" prop="nativeCity" />
-      <el-table-column label="户籍地省(区、市)" align="center" prop="hukouProvince" />
-      <el-table-column label="户籍地市(地、州)" align="center" prop="hukouCity" />
-      <el-table-column label="家庭住址" align="center" prop="familyAddress" />
-      <el-table-column label="身高" align="center" prop="height" />
-      <el-table-column label="志愿者polo衫尺码" align="center" prop="poloSize" />
-      <el-table-column label="是否参加出征仪式" align="center" prop="attendCeremony" />
-      <el-table-column label="分配省份" align="center" prop="assignProvince" />
-      <el-table-column label="是否有教师资格证" align="center" prop="hasTeacherCert" />
-      <el-table-column label="学段学科" align="center" prop="teacherSubject" />
-      <el-table-column label="项目类型" align="center" prop="projectType" />
-      <el-table-column label="专项类别" align="center" prop="specialType" />
-      <el-table-column label="联系方式" align="center" prop="phone" />
-      <el-table-column label="电子邮箱" align="center" prop="email" />
-      <el-table-column label="是否有学生干部经历" align="center" prop="hasCadreExp" />
-      <el-table-column label="服务省份" align="center" prop="serviceProvince" />
-      <el-table-column label="服务县" align="center" prop="serviceCounty" />
-      <el-table-column label="服务单位" align="center" prop="serviceUnit" />
-      <el-table-column label="职位" align="center" prop="position" />
-      <el-table-column label="岗位编号" align="center" prop="postCode" />
-      <el-table-column label="服务单位地址" align="center" prop="serviceAddress" />
-      <el-table-column label="服务单位联系人" align="center" prop="contactPerson" />
-      <el-table-column label="单位联系电话" align="center" prop="unitPhone" />
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="学号" align="center" prop="userId" width="100" />
+      <el-table-column label="学生姓名" align="center" prop="userName" width="100" />
+      <el-table-column label="性别" align="center" prop="gender" width="50" />
+      <el-table-column label="学院" align="center" prop="college" show-overflow-tooltip />
+      <el-table-column label="专业" align="center" prop="major" show-overflow-tooltip />
+      <el-table-column label="项目类型" align="center" prop="projectType" width="100" />
+      <el-table-column label="专项类别" align="center" prop="specialType" width="100" />
+      <el-table-column label="分配省份" align="center" prop="assignProvince" width="100" />
+      <el-table-column label="服务县" align="center" prop="serviceCounty" width="100" />
+      <el-table-column label="服务单位" align="center" prop="serviceUnit" show-overflow-tooltip />
+      <el-table-column label="联系方式" align="center" prop="phone" width="120" />
+      <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -382,109 +143,104 @@
     />
 
     <!-- 添加或修改学生录取信息（西部计划/三支一扶等项目）对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="70%" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="学号" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入学号" />
-        </el-form-item>
-        <el-form-item label="学生姓名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入学生姓名" />
-        </el-form-item>
-        <el-form-item label="身份证号" prop="idCard">
-          <el-input v-model="form.idCard" placeholder="请输入身份证号" />
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-input v-model="form.gender" placeholder="请输入性别" />
-        </el-form-item>
-        <el-form-item label="民族" prop="nation">
-          <el-input v-model="form.nation" placeholder="请输入民族" />
-        </el-form-item>
-        <el-form-item label="出生年月" prop="birthDate">
-          <el-date-picker clearable
-            v-model="form.birthDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择出生年月">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="学院/系名称" prop="college">
-          <el-input v-model="form.college" placeholder="请输入学院/系名称" />
-        </el-form-item>
-        <el-form-item label="专业全称" prop="major">
-          <el-input v-model="form.major" placeholder="请输入专业全称" />
-        </el-form-item>
-        <el-form-item label="学校建行卡号" prop="schoolCcbCard">
-          <el-input v-model="form.schoolCcbCard" placeholder="请输入学校建行卡号" />
-        </el-form-item>
-        <el-form-item label="籍贯省(区、市)" prop="nativeProvince">
-          <el-input v-model="form.nativeProvince" placeholder="请输入籍贯省(区、市)" />
-        </el-form-item>
-        <el-form-item label="籍贯市(地、州)" prop="nativeCity">
-          <el-input v-model="form.nativeCity" placeholder="请输入籍贯市(地、州)" />
-        </el-form-item>
-        <el-form-item label="户籍地省(区、市)" prop="hukouProvince">
-          <el-input v-model="form.hukouProvince" placeholder="请输入户籍地省(区、市)" />
-        </el-form-item>
-        <el-form-item label="户籍地市(地、州)" prop="hukouCity">
-          <el-input v-model="form.hukouCity" placeholder="请输入户籍地市(地、州)" />
-        </el-form-item>
-        <el-form-item label="家庭住址" prop="familyAddress">
-          <el-input v-model="form.familyAddress" placeholder="请输入家庭住址" />
-        </el-form-item>
-        <el-form-item label="身高" prop="height">
-          <el-input v-model="form.height" placeholder="请输入身高" />
-        </el-form-item>
-        <el-form-item label="志愿者polo衫尺码" prop="poloSize">
-          <el-input v-model="form.poloSize" placeholder="请输入志愿者polo衫尺码" />
-        </el-form-item>
-        <el-form-item label="是否参加出征仪式" prop="attendCeremony">
-          <el-input v-model="form.attendCeremony" placeholder="请输入是否参加出征仪式" />
-        </el-form-item>
-        <el-form-item label="分配省份" prop="assignProvince">
-          <el-input v-model="form.assignProvince" placeholder="请输入分配省份" />
-        </el-form-item>
-        <el-form-item label="是否有教师资格证" prop="hasTeacherCert">
-          <el-input v-model="form.hasTeacherCert" placeholder="请输入是否有教师资格证" />
-        </el-form-item>
-        <el-form-item label="学段学科" prop="teacherSubject">
-          <el-input v-model="form.teacherSubject" placeholder="请输入学段学科" />
-        </el-form-item>
-        <el-form-item label="联系方式" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入联系方式" />
-        </el-form-item>
-        <el-form-item label="电子邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入电子邮箱" />
-        </el-form-item>
-        <el-form-item label="是否有学生干部经历" prop="hasCadreExp">
-          <el-input v-model="form.hasCadreExp" placeholder="请输入是否有学生干部经历" />
-        </el-form-item>
-        <el-form-item label="服务省份" prop="serviceProvince">
-          <el-input v-model="form.serviceProvince" placeholder="请输入服务省份" />
-        </el-form-item>
-        <el-form-item label="服务县" prop="serviceCounty">
-          <el-input v-model="form.serviceCounty" placeholder="请输入服务县" />
-        </el-form-item>
-        <el-form-item label="服务单位" prop="serviceUnit">
-          <el-input v-model="form.serviceUnit" placeholder="请输入服务单位" />
-        </el-form-item>
-        <el-form-item label="职位" prop="position">
-          <el-input v-model="form.position" placeholder="请输入职位" />
-        </el-form-item>
-        <el-form-item label="岗位编号" prop="postCode">
-          <el-input v-model="form.postCode" placeholder="请输入岗位编号" />
-        </el-form-item>
-        <el-form-item label="服务单位地址" prop="serviceAddress">
-          <el-input v-model="form.serviceAddress" placeholder="请输入服务单位地址" />
-        </el-form-item>
-        <el-form-item label="服务单位联系人" prop="contactPerson">
-          <el-input v-model="form.contactPerson" placeholder="请输入服务单位联系人" />
-        </el-form-item>
-        <el-form-item label="单位联系电话" prop="unitPhone">
-          <el-input v-model="form.unitPhone" placeholder="请输入单位联系电话" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="学号" prop="userId">
+              <el-input v-model="form.userId" placeholder="请输入学号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="学生姓名" prop="userName">
+              <el-input v-model="form.userName" placeholder="请输入学生姓名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="身份证号" prop="idCard">
+              <el-input v-model="form.idCard" placeholder="请输入身份证号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="性别" prop="gender">
+              <el-select v-model="form.gender" placeholder="请选择性别" style="width: 100%">
+                <el-option label="男" value="男" />
+                <el-option label="女" value="女" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="民族" prop="nation">
+              <el-input v-model="form.nation" placeholder="请输入民族" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="出生年月" prop="birthDate">
+              <el-date-picker clearable
+                v-model="form.birthDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择出生年月"
+                style="width: 100%">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="学院名称" prop="college">
+              <el-input v-model="form.college" placeholder="请输入学院名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="专业名称" prop="major">
+              <el-input v-model="form.major" placeholder="请输入专业全称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="项目类型" prop="projectType">
+              <el-input v-model="form.projectType" placeholder="请输入项目类型" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="专项类别" prop="specialType">
+              <el-input v-model="form.specialType" placeholder="请输入专项类别" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="分配省份" prop="assignProvince">
+              <el-input v-model="form.assignProvince" placeholder="请输入分配省份" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="服务省份" prop="serviceProvince">
+              <el-input v-model="form.serviceProvince" placeholder="请输入服务省份" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="服务县" prop="serviceCounty">
+              <el-input v-model="form.serviceCounty" placeholder="请输入服务县" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="服务单位" prop="serviceUnit">
+              <el-input v-model="form.serviceUnit" placeholder="请输入服务单位" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="联系方式" prop="phone">
+              <el-input v-model="form.phone" placeholder="请输入联系方式" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="电子邮箱" prop="email">
+              <el-input v-model="form.email" placeholder="请输入电子邮箱" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -741,7 +497,7 @@ export default {
     },
      /** 导入按钮操作 */
     handleImport() {
-      this.upload.title = "用户导入"
+      this.upload.title = "学生录取导入"
       this.upload.open = true
     },
     /** 下载模板操作 */

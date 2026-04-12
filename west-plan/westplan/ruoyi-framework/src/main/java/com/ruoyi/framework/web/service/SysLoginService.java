@@ -2,7 +2,6 @@ package com.ruoyi.framework.web.service;
 
 import javax.annotation.Resource;
 
-import com.ruoyi.common.utils.sign.Base64;
 import com.ruoyi.common.utils.sign.RsaUtuils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,38 +62,52 @@ public class SysLoginService
 
     @Value("${Login.privateKeyPath}")
     private String privateKey;
-    public String decryptUsernameOrPassword(String text){
-        text = new String(Base64.decode(text));
-        
-        if(text!=null){
-            String s = "";
-            try {
-                String path = privateKey;
-                InputStream is = this.getClass().getClassLoader().getResourceAsStream(path);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                String fileContent = stringBuilder.toString();
-                s = fileContent;
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new ServiceException("登录失败，请重试");
-            }
-            byte[] encrypt;
-            try {
-                encrypt = RsaUtuils.decryptRSA(text, s).getBytes(StandardCharsets.UTF_8);
-                // 有问题Caused by: java.lang.IllegalStateException: zip file closed，cn.hutool.crypto.CryptoException: SecurityException: JCE cannot authenticate the provider BC
-                //  encrypt = SecureUtil.rsa(s, null).decrypt(text, KeyType.PrivateKey);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new BadCredentialsException("非法操作");
-            }
-            text = new String(encrypt);
+    
+    public String decryptUsernameOrPassword(String text)
+    {
+        if (StringUtils.isEmpty(text)) {
+            throw new BadCredentialsException("用户名或密码不能为空");
         }
-        return text;
+
+        String privateKeyContent = readPrivateKey();
+        if (StringUtils.isEmpty(privateKeyContent))
+        {
+            return text;
+        }
+
+        try
+        {
+            // 前端 jsencrypt 的输出本身就是 Base64 密文，后端应直接按 RSA 密文解密。
+            return RsaUtuils.decryptRSA(text, privateKeyContent);
+        }
+        catch (Exception e)
+        {
+            // 兼容未加密或格式不符合 RSA 密文的请求
+            return text;
+        }
+    }
+
+    private String readPrivateKey()
+    {
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(privateKey))
+        {
+            if (is == null)
+            {
+                return null;
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null)
+            {
+                stringBuilder.append(line);
+            }
+            return stringBuilder.toString();
+        }
+        catch (IOException e)
+        {
+            return null;
+        }
     }
 
 
@@ -154,7 +167,8 @@ public class SysLoginService
      * 
      * @param username 用户名
      * @param code 验证码
-     * @param uuid 唯一标识
+     * @param uuid 唯一标识text = new String(Base64.decode(text));
+
      * @return 结果
      */
     public void validateCaptcha(String username, String code, String uuid)

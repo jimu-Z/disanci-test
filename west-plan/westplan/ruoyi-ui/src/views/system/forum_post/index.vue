@@ -99,7 +99,7 @@
           </div>
 
           <!-- 空数据占位 -->
-          <div class="empty-post" v-if="postList==null||postList.length === 0 && !loading">
+          <div class="empty-post" v-if="(postList == null || postList.length === 0) && !loading">
             <el-empty description="该板块暂无帖子，快来发布第一篇吧~"></el-empty>
           </div>
         </div>

@@ -211,7 +211,6 @@ export default {
         type: 'warning'
       }).then(async () => {
         const res = await delMessage(id)
-        console.log(res,"@@@")
         if (res.code === 200) {
           this.$message.success('删除成功')
           this.getList()

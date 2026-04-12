@@ -82,7 +82,7 @@ export default {
 
 
       if (!id) {
-        alert("参数错误")
+        this.$message.error("参数错误")
         return this.$router.back()
       } else {//编辑
         try {

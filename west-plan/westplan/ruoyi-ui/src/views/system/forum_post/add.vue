@@ -43,7 +43,7 @@
 
         <!-- 附件上传 -->
         <el-form-item label="上传附件">
-          <el-upload class="upload-image" :action="fileAction" accept="image/jpg, image/jpeg, image/png"
+          <el-upload ref="upload" class="upload-image" :action="fileAction" accept="image/jpg, image/jpeg, image/png"
             :on-progress="imageOnUpload" :on-success="imageUploadSuccess" :on-error="imageUploadError"
             :headers="headers" :file-list="imagelist" :on-remove="handleRemove" list-type="picture-card">
             <el-button size="small">
@@ -124,6 +124,7 @@ export default {
         postTitle: '',
         postTags: [], // 标签数组
         postContent: '',
+        postAttach: '',
         attachIds: [], // 附件ID数组（传给后端）
         isPublic: '1' // 默认为公开
       },
@@ -179,7 +180,7 @@ export default {
     // 获取路由参数（修改模式传id）
     this.postId = this.$route.params.id;
     this.isEdit = !!this.postId;
-    this.boardList = this.getBoardList();
+    this.getBoardList();
     // 编辑模式回显数据
     if (this.isEdit) {
       this.getPostDetail();
@@ -202,7 +203,7 @@ export default {
       if (response.code !== 200) {
         this.$message.error(response.msg)
       } else {
-        this.imageOnUploading = true
+        this.imageOnUploading = false
         this.imagelist.push(response.url)
 
 
@@ -216,16 +217,13 @@ export default {
     handleRemove(file, fileList) {
       // 文件移除时的处理逻辑，例如从fileList中移除文件等
       const index = this.imagelist.indexOf(file.url);
-      console.log(index + ":" + file.url)
-      alert(index + ":" + file.url)
       //从imagelist中移除文件
       if (index !== -1) {
         this.imagelist.splice(index, 1);
       }
-      console.log(this.imagelist)
       this.$refs.upload.fileList = this.imagelist;
       // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       } else {
         this.hasFile = false
@@ -301,6 +299,7 @@ export default {
         this.form.postTitle = data.postTitle;
         this.form.postContent = data.postContent;
         this.form.isPublic = data.isPublic + '';
+        this.imagelist = data.postAttach ? data.postAttach.split(',').filter(item => item) : [];
         // 标签回显（后端逗号分隔转数组）
         this.form.postTags = data.postTags ? data.postTags.split(',').filter(item => item) : [];
         // 附件暂不回显（如需回显需对接文件查询接口）

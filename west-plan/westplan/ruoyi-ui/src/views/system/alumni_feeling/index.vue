@@ -511,8 +511,6 @@ computed: {
     handleRemove(file, fileList) {
       // 文件移除时的处理逻辑，例如从fileList中移除文件等
       const index = this.imagelist.indexOf(file.url);
-      console.log(index+":"+file.url)
-      alert(index+":"+file.url)
       //从imagelist中移除文件
       if (index !== -1) {
         this.imagelist.splice(index, 1);
@@ -520,7 +518,7 @@ computed: {
    //   console.log( this.imagelist)
       this.$refs.upload.fileList= this.imagelist;
      // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       }else {
         this.hasFile = false

@@ -17,7 +17,7 @@
           </span>
           <span
             class="cursor-pointer text-gray-500"
-            v-if="isLogin && (comment.userId === userId || hasPermi('system:comment:remove'))"
+            v-if="isLogin && (comment.userId === userId || checkPermi(['system:forum_comment:remove']))"
             @click="$emit('delete', comment.id)"
           >
             <i class="el-icon-delete"></i> 删除
@@ -43,7 +43,8 @@
 </template>
 
 <script>
-import { formatTime, hasPermi } from '@/utils/utils';
+import { formatTime } from '@/utils/utils';
+import { checkPermi } from '@/utils/permission';
 
 export default {
   name: 'CommentItem', // 递归组件必须指定name
@@ -66,7 +67,7 @@ export default {
   },
   methods: {
     formatTime,
-    hasPermi
+    checkPermi
   }
 };
 </script>

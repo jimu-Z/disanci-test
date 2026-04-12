@@ -101,7 +101,7 @@ export default {
       this.honorId = this.$route.params.id;
 
       if (!this.honorId) {
-        alert("参数错误")
+        this.$message.error("参数错误")
         return this.$router.back()
       } else {//编辑
         try {

@@ -41,7 +41,7 @@
         <result property="contactPerson"    column="contact_person"    />
         <result property="unitPhone"    column="unit_phone"    />
         <result property="remark"    column="remark"    />
-        <result property="admitYear"    column="admitYear"    />
+        <result property="admitYear"    column="admit_year"    />
         <result property="createTime"    column="create_time"    />
         <result property="createBy"    column="create_by"    />
         <result property="updateTime"    column="update_time"    />
@@ -51,7 +51,7 @@
     </resultMap>
 
     <sql id="selectStudentAdmissionVo">
-        select id, user_id, user_name, id_card, gender, nation, birth_date, political_status, college, major, school_ccb_card, native_province, native_city, hukou_province, hukou_city, family_address, height, polo_size, attend_ceremony, assign_province, has_teacher_cert, teacher_subject, project_type, special_type, phone, email, has_cadre_exp, service_province, service_county, service_unit, position, post_code, service_address, contact_person, unit_phone, remark, admitYear, create_time, create_by, update_time, update_by from student_admission
+        select id, user_id, user_name, id_card, gender, nation, birth_date, political_status, college, major, school_ccb_card, native_province, native_city, hukou_province, hukou_city, family_address, height, polo_size, attend_ceremony, assign_province, has_teacher_cert, teacher_subject, project_type, special_type, phone, email, has_cadre_exp, service_province, service_county, service_unit, position, post_code, service_address, contact_person, unit_phone, remark, admit_year, create_time, create_by, update_time, update_by from student_admission
     </sql>
 
     <select id="selectStudentAdmissionList" parameterType="StudentAdmission" resultMap="StudentAdmissionResult">
@@ -63,7 +63,7 @@
         sa.teacher_subject, sa.project_type, sa.special_type, sa.phone, sa.email,
         sa.has_cadre_exp, sa.service_province, sa.service_county, sa.service_unit,
         sa.position, sa.post_code, sa.service_address, sa.contact_person, sa.unit_phone,
-        sa.remark, sa.admitYear, sa.create_time, sa.create_by, sa.update_time, sa.update_by,
+        sa.remark, sa.admit_year, sa.create_time, sa.create_by, sa.update_time, sa.update_by,
 
         (CASE WHEN EXISTS (
         SELECT 1 FROM friend_relation fr
@@ -117,7 +117,7 @@
             <if test="serviceAddress != null  and serviceAddress != ''"> and service_address like concat('%', #{serviceAddress}, '%')</if>
             <if test="contactPerson != null  and contactPerson != ''"> and contact_person like concat('%', #{contactPerson}, '%')</if>
             <if test="unitPhone != null  and unitPhone != ''"> and unit_phone like concat('%', #{unitPhone}, '%')</if>
-            <if test="admitYear != null and admitYear !='' "> and admitYear = #{admitYear}</if>
+            <if test="admitYear != null"> and admit_year = #{admitYear}</if>
         </where>
     </select>
     <select id="selectStudentAdmissionById" parameterType="Long" resultMap="StudentAdmissionResult">
@@ -167,7 +167,7 @@
             <if test="contactPerson != null">contact_person,</if>
             <if test="unitPhone != null">unit_phone,</if>
             <if test="remark != null">remark,</if>
-            <if test="admitYear != null and admitYear !=''">admitYear,</if>
+            <if test="admitYear != null">admit_year,</if>
             <if test="createTime != null">create_time,</if>
             <if test="createBy != null">create_by,</if>
             <if test="updateTime != null">update_time,</if>
@@ -209,7 +209,7 @@
             <if test="contactPerson != null">#{contactPerson},</if>
             <if test="unitPhone != null">#{unitPhone},</if>
             <if test="remark != null">#{remark},</if>
-            <if test="admitYear != null and admitYear !=''">#{admitYear},</if>
+            <if test="admitYear != null">#{admitYear},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
@@ -255,7 +255,7 @@
             <if test="contactPerson != null">contact_person = #{contactPerson},</if>
             <if test="unitPhone != null">unit_phone = #{unitPhone},</if>
             <if test="remark != null">remark = #{remark},</if>
-            <if test="admitYear != null and admitYear !=''">admitYear = #{admitYear},</if>
+            <if test="admitYear != null">admit_year = #{admitYear},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>

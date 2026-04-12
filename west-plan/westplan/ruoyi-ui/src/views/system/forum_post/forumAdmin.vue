@@ -4,7 +4,7 @@
     <div class="search-box">
       <el-form :inline="true" :model="queryParams" class="search-form">
         <el-form-item label="标题">
-          <el-input v-model="queryParams.title" placeholder="请输入帖子标题" clearable @keyup.enter.native="getList"/>
+          <el-input v-model="queryParams.postTitle" placeholder="请输入帖子标题" clearable @keyup.enter.native="getList"/>
         </el-form-item>
         <el-form-item label="审核状态">
           <el-select v-model="queryParams.auditStatus" placeholder="请选择" clearable @change="getList">
@@ -14,7 +14,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="发布时间">
-          <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" @change="handleDateChange"/>
+          <el-date-picker v-model="dateRange" type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" @change="handleDateChange"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" @click="getList">搜索</el-button>
@@ -89,7 +89,7 @@ export default {
       pageNum: 1,
       pageSize: 10,
       total: 0,
-      queryParams: { title: '', auditStatus: 0, startTime: '', endTime: '' },
+      queryParams: { postTitle: '', auditStatus: 0, startTime: '', endTime: '' },
       dateRange: [],
       selectedIds: [],
       auditDialog: false,
@@ -134,7 +134,7 @@ export default {
     // 重置查询
     resetQuery() {
       this.dateRange = []
-      this.queryParams = { title: '', auditStatus: '', startTime: '', endTime: '' }
+      this.queryParams = { postTitle: '', auditStatus: 0, startTime: '', endTime: '' }
       this.pageNum = 1
       this.getList()
     },
@@ -158,10 +158,10 @@ export default {
 
     // 单条审核
     audit(id, status) {
+      this.auditForm.auditRemark = ''
       this.auditForm.id = id
       this.auditForm.ids = []
       this.auditForm.auditStatus = status
-      this.auditForm.auditStatusRmark = ''
 
       if (status === 2) {
         this.auditDialog = true
@@ -177,7 +177,7 @@ export default {
 
     // 提交审核（驳回专用）
     submitAudit() {
-      if (!this.auditForm.remark && this.auditForm.status === 2) {
+      if (this.auditForm.auditStatus === 2 && !this.auditForm.auditRemark) {
         return this.$message.warning('请输入驳回原因')
       }
 
@@ -200,10 +200,10 @@ export default {
       if (this.selectedIds.length === 0) {
         return this.$message.warning('请选择数据')
       }
+      this.auditForm.auditRemark = ''
       this.auditForm.id = null
       this.auditForm.ids = []
       this.auditForm.auditStatus = status
-      this.auditForm.auditStatusRmark = ''
       this.auditForm.ids = this.selectedIds
 
       if (status === 2) {
@@ -227,6 +227,7 @@ export default {
         <p><strong>标题：</strong>${row.postTitle}</p>
         <p><strong>内容：</strong>${row.postContent}</p>
         <p><strong>审核状态：</strong>${row.auditStatus === 0 ? '待审核' : row.auditStatus === 1 ? '已通过' : '已驳回'}</p>
+        <p><strong>审核备注：</strong>${row.auditRemark || '无'}</p>
         <p><strong>创建时间：</strong>${row.createTime}</p>
       `
       this.detailDialog = true

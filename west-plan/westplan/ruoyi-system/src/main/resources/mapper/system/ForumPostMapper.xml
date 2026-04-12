@@ -180,6 +180,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">and p.user_id = #{userId}</if>
             <if test="auditStatus != null">and p.audit_status = #{auditStatus}</if>
             <if test="isTop != null and isTop == 1">and p.is_top = 1</if>
+            <if test="startTime != null and startTime != ''">and date_format(p.create_time, '%Y-%m-%d') &gt;= #{startTime}</if>
+            <if test="endTime != null and endTime != ''">and date_format(p.create_time, '%Y-%m-%d') &lt;= #{endTime}</if>
             <!-- 普通用户仅看公开+审核通过的帖子 -->
             <if test="auditStatus == null ">
                 and p.audit_status = 1
@@ -220,8 +222,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             limit #{limit}
     </select>
 
-    <select id="selectPostDetailById" resultMap="PostResultMap" parameterType="java.lang.Long">
-        select p.*, b.board_name, u.nick_name, u.avatar
+    <select id="selectPostDetailById" resultMap="PostResultMap" parameterType="map">
+        select p.*, b.board_name, u.nick_name, u.avatar,
+               (select count(1) from forum_interact where post_id = p.id and user_id = #{currentUserId} and type = 1) as is_liked,
+               (select count(1) from forum_interact where post_id = p.id and user_id = #{currentUserId} and type = 2) as is_collected
         from forum_post p
                  left join forum_board b on p.board_id = b.id
                  left join sys_user u on p.user_id = u.user_id

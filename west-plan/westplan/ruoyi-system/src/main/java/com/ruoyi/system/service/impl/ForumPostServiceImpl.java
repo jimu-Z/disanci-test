@@ -69,13 +69,14 @@ public class ForumPostServiceImpl implements IForumPostService
 
     @Override
     public ForumPost selectPostDetail(Long id) {
-        // 1. 校验帖子存在
-        ForumPost post = forumPostMapper.selectPostDetailById(id);
+        // 1. 获取当前用户ID
+        Long userId = SecurityUtils.getLoginUser().getUser().getUserId();
+        // 2. 校验帖子存在
+        ForumPost post = forumPostMapper.selectPostDetailById(id, userId);
         if (post == null) {
             throw new ServiceException("帖子不存在");
         }
-        // 2. 浏览量自增（Redis限流：1分钟内同一用户仅增1次）
-        Long userId = SecurityUtils.getLoginUser().getUser().getUserId();
+        // 3. 浏览量自增（Redis限流：1分钟内同一用户仅增1次）
         String redisKey = String.format("forum:post:view:limit:%d:%d", id, userId);
         if (!redisCache.hasKey(redisKey)) {
             forumPostMapper.incrementViewCount(id);
@@ -147,7 +148,6 @@ public class ForumPostServiceImpl implements IForumPostService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int auditPost(Long id, Integer auditStatus, String auditRemark) {
-        System.out.println(id.toString()+"@@@@@@@@@@"+auditStatus);
         ForumPost post = forumPostMapper.selectByPrimaryKey(id);
 
         if (post == null) {

@@ -60,26 +60,26 @@
         </div>
       </div>
 
-      <!-- 操作按钮 -->
-      <div class="mt-6 flex gap-3">
-        <el-button
-          type="default"
-          icon="el-icon-like"
-          @click="handleLike"
-          :disabled="!isLogin"
-          :loading="likeLoading"
-        >
-          点赞 ({{ postInfo.likeCount }})
-        </el-button>
-        <el-button
-          type="default"
-          icon="el-icon-star-off"
-          @click="handleCollect"
-          :disabled="!isLogin"
-          :loading="collectLoading"
-        >
-          收藏 ({{ postInfo.collectCount || 0 }})
-        </el-button>
+    <!-- 操作按钮 -->
+    <div class="mt-6 flex gap-3">
+      <el-button
+        :type="postInfo.isLiked ? 'primary' : 'default'"
+        icon="el-icon-like"
+        @click="handleLike"
+        :disabled="!isLogin"
+        :loading="likeLoading"
+      >
+        {{ postInfo.isLiked ? '已点赞' : '点赞' }} ({{ postInfo.likeCount }})
+      </el-button>
+      <el-button
+        :type="postInfo.isCollected ? 'warning' : 'default'"
+        icon="el-icon-star-off"
+        @click="handleCollect"
+        :disabled="!isLogin"
+        :loading="collectLoading"
+      >
+        {{ postInfo.isCollected ? '已收藏' : '收藏' }} ({{ postInfo.collectCount || 0 }})
+      </el-button>
         <el-button
           type="default"
           icon="el-icon-edit"
@@ -92,8 +92,7 @@
           type="danger"
           icon="el-icon-delete"
           @click="handleDeletePost"
-          v-if="isLogin && (postInfo.userId === id   )"
-          v-hasPermi="['system:post:remove']"
+          v-if="isLogin && (postInfo.userId === id || checkPermi(['system:forum_post:remove']))"
         >
           删除帖子
         </el-button>
@@ -186,9 +185,9 @@
 
 <script>
 import {getForum_post,like,collect,delForum_post} from '@/api/system/forum_post';
-import {getTreeByPostId,addForum_comment,commentLike} from '@/api/system/forum_comment';
+import { getTreeByPostId, addForum_comment, commentLike } from '@/api/system/forum_comment';
 import { mapGetters } from 'vuex';
-//import { mapGetters } from 'vuex';
+import { checkPermi, checkRole } from '@/utils/permission';
 import {
   formatTime,
   splitAttachUrl,
@@ -238,10 +237,6 @@ export default {
   computed: {
     // 从Vuex获取登录状态、用户ID、权限
     ...mapGetters(['isLogin', 'id', 'permissions']),
-    // 权限判断方法
-    hasPermi: function() {
-      return hasPermi;
-    }
   },
   created() {
     // 获取路由参数
@@ -420,7 +415,9 @@ export default {
     },
     // 工具函数复用
     formatTime,
-    getFileName
+    getFileName,
+    checkPermi,
+    checkRole
   }
 }
 </script>

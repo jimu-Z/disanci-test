@@ -10,7 +10,7 @@
 
     <!-- 数据统计卡片 -->
     <el-row :gutter="20" class="stat-row">
-      <el-col :xs="24" :sm="12" :lg="6" v-for="(item, index) in statList" :key="index">
+      <el-col :xs="24" :sm="12" :lg="6" v-for="item in statList" :key="item.label">
         <div class="stat-card" :style="{background: item.bg}">
           <div class="card-left">
             <p class="label">{{ item.label }}</p>
@@ -41,7 +41,7 @@
     <div class="function-section">
       <h2 class="section-title">平台核心功能</h2>
       <div class="function-grid">
-        <div class="function-item" v-for="(item, idx) in funcList" :key="idx" @click="goPage(item.path)">
+        <div class="function-item" v-for="item in funcList" :key="item.path" @click="goPage(item.path)">
           <div class="func-icon" :style="{background: item.color}">
             <i :class="item.icon"></i>
           </div>
@@ -81,7 +81,7 @@ export default {
       ],
       funcList: [
         { name: '报名管理', desc: '西部计划报名', icon: 'el-icon-document', color: '#67C23A', path: '/system/apply' },
-        { name: '录取管理', desc: '录取信息', icon: 'el-icon-user', color: '#409EFF', path: 'system/admission' },
+        { name: '录取管理', desc: '录取信息', icon: 'el-icon-user', color: '#409EFF', path: '/system/admission' },
         { name: '校友查询', desc: '校友查询', icon: 'el-icon-book', color: '#E6A23C', path: '/system/admission/search' },
         { name: '留言管理', desc: '给管理员留言', icon: 'el-icon-chat-line', color: '#ff88bb', path: '/system/message' },
         { name: '互动论坛', desc: '经验交流分享', icon: 'el-icon-chat-line', color: '#F56C6C', path: '/system/forum' },

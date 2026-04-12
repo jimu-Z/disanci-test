@@ -99,6 +99,34 @@ public class ForumPost extends BaseEntity
     @Excel(name = "是否公开", readConverterExp = "0=私密1公开")
     private Integer isPublic;
 
+    /** 查询开始时间 */
+    private String startTime;
+
+    /** 查询结束时间 */
+    private String endTime;
+
+    /** 是否已点赞 */
+    private Boolean isLiked;
+
+    /** 是否已收藏 */
+    private Boolean isCollected;
+
+    public Boolean getIsLiked() {
+        return isLiked;
+    }
+
+    public void setIsLiked(Boolean isLiked) {
+        this.isLiked = isLiked;
+    }
+
+    public Boolean getIsCollected() {
+        return isCollected;
+    }
+
+    public void setIsCollected(Boolean isCollected) {
+        this.isCollected = isCollected;
+    }
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -259,6 +287,26 @@ public class ForumPost extends BaseEntity
         return isPublic;
     }
 
+    public void setStartTime(String startTime)
+    {
+        this.startTime = startTime;
+    }
+
+    public String getStartTime()
+    {
+        return startTime;
+    }
+
+    public void setEndTime(String endTime)
+    {
+        this.endTime = endTime;
+    }
+
+    public String getEndTime()
+    {
+        return endTime;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -278,6 +326,8 @@ public class ForumPost extends BaseEntity
             .append("auditStatus", getAuditStatus())
             .append("auditRemark", getAuditRemark())
             .append("isPublic", getIsPublic())
+            .append("startTime", getStartTime())
+            .append("endTime", getEndTime())
             .append("createTime", getCreateTime())
             .append("updateTime", getUpdateTime())
             .toString();

@@ -28,7 +28,7 @@ public interface ForumPostMapper
     List<ForumPost> selectNewPostList(@Param("userId")Long userId,@Param("limit") Integer limit);
     List<ForumPost> selectMyPosts(@Param("userId")Long userId,@Param("limit") Integer limit);
     /** 帖子详情（联表） */
-    ForumPost selectPostDetailById(Long id);
+    ForumPost selectPostDetailById(@Param("id") Long id, @Param("currentUserId") Long currentUserId);
     /** 浏览量自增（防重复） */
     int incrementViewCount(Long id);
     /** 数值自增（点赞/收藏/评论） */

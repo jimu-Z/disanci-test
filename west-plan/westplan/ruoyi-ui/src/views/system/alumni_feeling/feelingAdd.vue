@@ -251,27 +251,27 @@ computed: {
 
           this.form.userId=this.userId;
           this.form.category=this.paraCategory;
-           this.form.likeCount =0
-           this.viewCount=0
-
-           this.form.picture=this.imagelist.join(',');
+          this.form.picture=this.imagelist.join(',');
           if (this.form.id != null) {
             updateAlumni_feeling(this.form).then(response => {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
+              this.$router.go(-1)
             })
           } else {
+            this.form.likeCount = 0
+            this.form.viewCount = 0
             addAlumni_feeling(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
+              this.$router.go(-1)
             })
           }
           this.imagelist=[]
         }
       })
-         this.$router.go(-1)
     },
     /** 删除按钮操作 */
     handleDelete(row) {
@@ -281,8 +281,8 @@ computed: {
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
+        this.$router.go(-1)
       }).catch(() => {})
-     this.$router.go(-1)
     },
 
 
@@ -319,13 +319,12 @@ computed: {
    //   console.log( this.imagelist)
       this.$refs.upload.fileList= this.imagelist;
      // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       }else {
         this.hasFile = false
         this.form.picture = null
       }
-      this.$router.go(-1)
     },
     handleDialogClose() {
       // 清空文件列表+重置预览状态

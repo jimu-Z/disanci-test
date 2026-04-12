@@ -3,6 +3,7 @@ package com.ruoyi.system.mapper;
 import java.util.List;
 import com.ruoyi.system.domain.StudentAdmission;
 import com.ruoyi.system.domain.StudentApply;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 学生录取信息Mapper接口
@@ -60,7 +61,7 @@ public interface StudentAdmissionMapper
      */
     int deleteStudentAdmissionByIds(Long[] ids);
 
-    StudentAdmission selectStudentAdmissionByUserId(long l);
+    StudentAdmission selectStudentAdmissionByUserId(@Param("id") long userId);
 
     int countStudentAdmission();
 }
