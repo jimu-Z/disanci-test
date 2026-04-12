@@ -16,13 +16,13 @@ ruoyi:
 # 微信公众号开发配置
 wx:
   mp:
-    token: mytoken
+    token: ${WX_MP_TOKEN:mytoken}
     #appId: wx37c508da449e3ff4
     #appSecret: 6ca5602067c6ef1652b54c92a5fe6e4c
     #encoding-a-e-s-key: 0d6e855794e283be436747e2e90648cf
-    appId: wxab4719d97baf7d4a
-    appSecret: 722431e88e70892690efa70141099442
-    loginRedirectUrl: http://localhost:8080/ruoyi/wx/login
+    appId: ${WX_MP_APP_ID:wxab4719d97baf7d4a}
+    appSecret: ${WX_MP_APP_SECRET:}
+    loginRedirectUrl: ${WX_MP_LOGIN_REDIRECT_URL:http://localhost:8080/ruoyi/wx/login}
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
@@ -104,10 +104,9 @@ token:
   # 令牌自定义标识
   header: Authorization
   # 令牌密钥
-  secret: abcde123fghijklmnopqrstuvwxyz
+  secret: ${TOKEN_SECRET:PLEASE_CHANGE_ME_TOKEN_SECRET}
   # 令牌有效期（默认30分钟）
   expireTime: 30
-
 
 # MyBatis配置
 mybatis:

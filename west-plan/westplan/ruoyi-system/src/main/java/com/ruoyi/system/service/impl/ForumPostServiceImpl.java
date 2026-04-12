@@ -1,6 +1,8 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,11 @@ public class ForumPostServiceImpl implements IForumPostService
     private static final Integer INTERACT_LIKE = 1;    // 点赞
     private static final Integer INTERACT_COLLECT = 2; // 收藏
     private static final Integer TARGET_TYPE_POST = 1; // 目标类型-帖子
+    private static final Set<String> ALLOWED_COUNTER_COLUMNS = new HashSet<String>() {{
+        add("like_count");
+        add("collect_count");
+        add("comment_count");
+    }};
 
 
     @Override
@@ -268,6 +275,9 @@ public class ForumPostServiceImpl implements IForumPostService
             commonInteractMapper.insertCommonInteract(newInteract);
             forumPostMapper.incrementCount(postId, column);
         } else {
+        if (!ALLOWED_COUNTER_COLUMNS.contains(column)) {
+            throw new ServiceException("非法计数字段");
+        }
             // 已互动：删除记录+数值自减
             commonInteractMapper.deleteInteractByUser(
                     userId, TARGET_TYPE_POST, postId, interactType

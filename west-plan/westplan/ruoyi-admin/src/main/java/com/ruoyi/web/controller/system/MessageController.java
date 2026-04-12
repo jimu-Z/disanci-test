@@ -5,14 +5,12 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.system.domain.AlumniHonor;
 import com.ruoyi.system.domain.Message;
 import com.ruoyi.system.service.IMessageService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +22,7 @@ public class MessageController extends BaseController {
         private IMessageService messageService;
 
         // ========== 管理员接口 ==========
+        @PreAuthorize("@ss.hasPermi('system:alumni_honor:reply')")
         @GetMapping("/admin/list")
         public TableDataInfo adminList( Message message){
             startPage();
@@ -69,7 +68,9 @@ public class MessageController extends BaseController {
             if (!getLoginUser().getUser().isAdmin() ){
                 //根据id查询留言，判断留言id与参数id是否一致，一致则删除，否则返回失败
                 Message message = messageService.getMessageById(id);
-                if( message.getUserId().equals(getLoginUser().getUser().getUserId()))
+                if (message == null)
+                    flag = false;
+                else if( message.getUserId().equals(getLoginUser().getUser().getUserId()))
                     flag = messageService.delete(id);
                 else
                     flag = false;

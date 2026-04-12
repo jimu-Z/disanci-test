@@ -9,6 +9,44 @@
 	- 编译级验证：在 `westplan` 目录执行 `mvn -DskipTests -pl ruoyi-admin -am compile -q`，返回码 `LASTEXITCODE=0`。
 - 审查结论：当前代码可编译，但存在多处“可运行但高风险/易出错”的逻辑与安全缺口，建议分阶段整改。
 
+## 1.1 本次整改执行结果（2026-04-12）
+
+- 基线提交：`747678e`（先提交后修复）。
+- 第一阶段（止血）已完成：
+	- 已修复 `WxLoginController` 中字符串 `==` 比较问题，改为 `equals`。
+	- 已修复 `UserMessageMapper.xml` 中 `send_user_id` 列名错误为 `user_id`。
+	- 已为 `MessageController` / `UserMessageController` 删除逻辑增加空值保护。
+	- 已为 `MessageController` 的 `admin/list` 增加权限注解。
+	- 已将数据库、微信、Token、Druid 控制台口令改为环境变量注入形式。
+- 第一阶段复审：
+	- 后端编译通过：`mvn -DskipTests compile`。
+	- 关键风险点复查通过（字符串比较、列名错误、空指针路径）。
+
+- 第二阶段（一致性）已完成：
+	- 已修复评论父子关联 SQL：父评论用户改为“先关联父评论再关联父评论作者”。
+	- 已补齐评论查询映射字段：`user_name`、`parent_user_name`、`avatar`。
+	- 已补齐 `deleteCommentByParentIds` 的 Mapper SQL。
+	- 已实现 `ForumCommentServiceImpl` 中原空实现方法。
+	- 已修复评论删除计数漂移：按 `deleteCount` 次数扣减 `comment_count`。
+- 第二阶段复审：
+	- 后端编译通过；ForumComment 相关文件无编译/语义错误。
+
+- 第三阶段（质量基线）已完成：
+	- 新增测试：
+		- `ruoyi-admin/src/test/java/com/ruoyi/web/controller/system/WxLoginControllerTest.java`
+		- `ruoyi-admin/src/test/java/com/ruoyi/web/controller/system/MessageControllersTest.java`
+		- `ruoyi-system/src/test/java/com/ruoyi/system/service/impl/ForumCommentServiceImplTest.java`
+	- 新增测试依赖：`junit`、`mockito`、`byte-buddy`（test scope）。
+	- 已完成动态列名风险加固：`ForumPostServiceImpl` 增加列名白名单校验。
+- 第三阶段复审：
+	- `mvn -pl ruoyi-system -am test` 通过。
+	- `mvn -pl ruoyi-admin -am test` 通过。
+
+## 1.2 当前剩余风险（已降级）
+
+- 权限标识语义仍待统一：`MessageController` 当前沿用了 `system:alumni_honor:reply` 权限标识，建议后续改成留言域独立权限并同步菜单/角色配置。
+- 配置安全依赖部署规范：虽然代码已改为环境变量注入，但若运行环境未覆盖 `TOKEN_SECRET`、`DB_PASSWORD`、`WX_MP_APP_SECRET`、`DRUID_LOGIN_PASSWORD`，仍存在弱配置风险。
+
 ---
 
 ## 2. 关键问题清单（按严重级别）

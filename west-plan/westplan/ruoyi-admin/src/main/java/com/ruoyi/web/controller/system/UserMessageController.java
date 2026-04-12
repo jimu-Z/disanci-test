@@ -86,7 +86,9 @@ public class UserMessageController extends BaseController {
         if (!getLoginUser().getUser().isAdmin() ){
             //根据id查询留言，判断留言id与参数id是否一致，一致则删除，否则返回失败
             UserMessage userMessage = userMessageService.getUserMessageById(id);
-            if( userMessage.getUserId().equals(getLoginUser().getUser().getUserId()))
+            if (userMessage == null)
+                flag = false;
+            else if( userMessage.getUserId().equals(getLoginUser().getUser().getUserId()))
                 flag = userMessageService.delete(id);
             else
                 flag = false;

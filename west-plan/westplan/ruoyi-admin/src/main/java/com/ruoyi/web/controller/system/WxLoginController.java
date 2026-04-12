@@ -5,9 +5,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.redis.RedisCache;
-import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.framework.web.service.SysLoginService;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.domain.StudentApply;
 import com.ruoyi.system.service.IStudentApplyService;
@@ -94,10 +92,9 @@ public class WxLoginController {
 
             // 第三步：已绑定：根据用户ID获取系统用户，生成登录token
             SysUser sysUser = sysUserService.selectUserById(Long.parseLong(apply.getUserId()) );
-            if (sysUser == null || sysUser.getStatus() == "0") {
+            if (sysUser == null || "0".equals(sysUser.getStatus())) {
                 return AjaxResult.error("账号不存在或已禁用");
             }
-            SysLoginService loginService = new SysLoginService();
             LoginUser loginUser = new LoginUser();
             loginUser.setUserId(sysUser.getUserId());
             loginUser.setUser(sysUser);

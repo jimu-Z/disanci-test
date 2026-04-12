@@ -14,6 +14,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="auditStatus"    column="audit_status"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="userName" column="user_name" />
+        <result property="avatar" column="avatar" />
+        <result property="parentUserName" column="parent_user_name" />
     </resultMap>
 
     <sql id="selectForumCommentVo">
@@ -96,21 +99,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <delete id="deleteCommentByParentIds">
+        delete from forum_comment where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <!-- 根据帖子ID查询评论树形列表 -->
     <select id="selectCommentListByPostId" resultMap="ForumCommentResult">
-        select c.*, u.nick_name, u.avatar, pu.nick_name as parent_nick
+        select c.*, u.nick_name as user_name, u.avatar, pu.nick_name as parent_user_name
         from forum_comment c
                  left join sys_user u on c.user_id = u.user_id
-                 left join sys_user pu on c.parent_id != 0 and c.parent_id = pu.user_id
+                 left join forum_comment pc on c.parent_id = pc.id
+                 left join sys_user pu on pc.user_id = pu.user_id
         where c.post_id = #{postId} and c.audit_status = 1
         order by c.create_time asc
     </select>
     <select id="selectChildCommentByParentId" resultMap="ForumCommentResult">
-        select c.*, u.nick_name, u.avatar, pu.nick_name as parent_nick
+        select c.*, u.nick_name as user_name, u.avatar, pu.nick_name as parent_user_name
         from forum_comment c
                  left join sys_user u on c.user_id = u.user_id
-                 left join sys_user pu on c.parent_id != 0 and c.parent_id = pu.user_id
-        where c.parent_id = #{parentId}
+                 left join forum_comment pc on c.parent_id = pc.id
+                 left join sys_user pu on pc.user_id = pu.user_id
+        where c.parent_id = #{parentId} and c.audit_status = 1
         order by c.create_time asc
     </select>
 

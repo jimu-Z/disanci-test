@@ -17,8 +17,11 @@ public interface ForumCommentMapper
     int insert(ForumComment record);
 
     ForumComment selectByPrimaryKey(Long id);
+    List<ForumComment> selectForumCommentList(ForumComment forumComment);
     int updateByPrimaryKeySelective(ForumComment record);
     int updateByPrimaryKey(ForumComment record);
+    int updateForumComment(ForumComment forumComment);
+    int deleteForumCommentByIds(Long[] ids);
 
     // 自定义方法
     /** 根据帖子ID查询评论列表（联表用户，平级） */

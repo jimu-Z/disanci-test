@@ -125,27 +125,27 @@ public class ForumCommentServiceImpl implements IForumCommentService
 
     @Override
     public ForumComment selectForumCommentById(Long id) {
-        return null;
+        return forumCommentMapper.selectByPrimaryKey(id);
     }
 
     @Override
     public List<ForumComment> selectForumCommentList(ForumComment forumComment) {
-        return null;
+        return forumCommentMapper.selectForumCommentList(forumComment);
     }
 
     @Override
     public int insertForumComment(ForumComment forumComment) {
-        return 0;
+        return forumCommentMapper.insert(forumComment);
     }
 
     @Override
     public int updateForumComment(ForumComment forumComment) {
-        return 0;
+        return forumCommentMapper.updateForumComment(forumComment);
     }
 
     @Override
     public int deleteForumCommentByIds(Long[] ids) {
-        return 0;
+        return forumCommentMapper.deleteForumCommentByIds(ids);
     }
 
     @Override
@@ -168,7 +168,9 @@ public class ForumCommentServiceImpl implements IForumCommentService
         collectChildCommentIds(id, allCommentIds);
         // 4. 删除评论+帖子评论数自减
         int deleteCount = forumCommentMapper.deleteCommentByParentIds(allCommentIds);
-        forumPostMapper.decrementCount(comment.getPostId(), "comment_count");
+        for (int i = 0; i < deleteCount; i++) {
+            forumPostMapper.decrementCount(comment.getPostId(), "comment_count");
+        }
         return deleteCount;
     }
 

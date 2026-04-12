@@ -86,7 +86,7 @@
             m.is_deleted
         FROM alumni_message m
                  LEFT JOIN sys_user u ON m.receive_user_id = u.user_id
-        WHERE send_user_id=#{userId} AND is_deleted=0
+        WHERE user_id=#{userId} AND is_deleted=0
     </select>
     <select id="selectRePlyUserAll" resultType="com.ruoyi.system.domain.UserMessage">
         SELECT
