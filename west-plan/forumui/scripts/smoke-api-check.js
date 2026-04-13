@@ -1,13 +1,8 @@
 /* eslint-disable no-console */
-const axios = require('axios')
-
 const baseURL = process.env.SMOKE_BASE_URL || process.argv[2] || 'http://127.0.0.1:8080'
 const token = process.env.SMOKE_TOKEN || process.argv[3] || ''
 
-const http = axios.create({
-    baseURL,
-    timeout: 12000
-})
+const TIMEOUT_MS = 12000
 
 const checks = [
     { name: 'captcha', method: 'get', url: '/captchaImage', auth: false },
@@ -32,7 +27,14 @@ async function run() {
         }
 
         try {
-            const res = await http.request({ method: item.method, url: item.url, headers })
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS)
+            const res = await fetch(`${baseURL}${item.url}`, {
+                method: item.method.toUpperCase(),
+                headers,
+                signal: controller.signal
+            })
+            clearTimeout(timeoutId)
             const ok = res.status >= 200 && res.status < 300
             if (!ok) {
                 failed += 1
@@ -40,7 +42,7 @@ async function run() {
             console.log(`[${ok ? 'ok' : 'fail'}] ${item.name} ${res.status}`)
         } catch (err) {
             failed += 1
-            const status = err && err.response ? err.response.status : 'ERR'
+            const status = err && err.name === 'AbortError' ? 'TIMEOUT' : 'ERR'
             console.log(`[fail] ${item.name} ${status}`)
         }
     }
