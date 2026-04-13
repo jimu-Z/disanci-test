@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { formatTime, hasPermi } from '@/utils/utils';
+import { formatTime } from '@/utils/utils';
 
 export default {
   name: 'CommentItem', // 递归组件必须指定name
@@ -66,7 +66,9 @@ export default {
   },
   methods: {
     formatTime,
-    hasPermi
+    hasPermi(permission) {
+      return this.$auth.hasPermi(permission);
+    }
   }
 };
 </script>

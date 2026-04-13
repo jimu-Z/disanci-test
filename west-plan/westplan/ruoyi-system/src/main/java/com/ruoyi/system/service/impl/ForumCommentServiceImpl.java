@@ -41,6 +41,7 @@ public class ForumCommentServiceImpl implements IForumCommentService
     // 评论点赞限流Redis键前缀
     private static final String COMMENT_LIKE_KEY = "forum:comment:like:limit:%d:%d";
     private static final Integer LIKE_LIMIT_SECONDS = 86400; // 点赞限流时间：24小时
+    private static final String FORUM_HOT_UPDATE_KEY = "forum:hot:update:ts";
 
     // 获取评论列表并组装树形结构 (优化版：支持无限层级)与selectCommentTreeByPostId功能相同，返回类型不同
     public List<ForumComment> getTreeByPostId(Long postId) {
@@ -91,6 +92,12 @@ public class ForumCommentServiceImpl implements IForumCommentService
         return treeList;
     }
 
+    @Override
+    public List<ForumComment> selectRecentCommentByPostId(Long postId, Integer limit) {
+        int safeLimit = (limit == null || limit <= 0 || limit > 50) ? 10 : limit;
+        return forumCommentMapper.selectRecentCommentByPostId(postId, safeLimit);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int addForumComment(ForumCommentAddDTO dto) {
@@ -100,8 +107,14 @@ public class ForumCommentServiceImpl implements IForumCommentService
             throw new ServiceException("帖子不存在或未审核通过，无法评论");
         }
         // 2. 校验父评论存在（回复时）
-        if (dto.getParentId() != 0 && forumCommentMapper.selectByPrimaryKey(dto.getParentId()) == null) {
-            throw new ServiceException("回复的评论不存在");
+        if (dto.getParentId() != 0) {
+            ForumComment parentComment = forumCommentMapper.selectByPrimaryKey(dto.getParentId());
+            if (parentComment == null) {
+                throw new ServiceException("回复的评论不存在");
+            }
+            if (!dto.getPostId().equals(parentComment.getPostId())) {
+                throw new ServiceException("回复评论与帖子不匹配");
+            }
         }
         // 3. 获取当前用户
         SysUser user = SecurityUtils.getLoginUser().getUser();
@@ -119,6 +132,7 @@ public class ForumCommentServiceImpl implements IForumCommentService
         int result = forumCommentMapper.insert(comment);
         if (result > 0) {
             forumPostMapper.incrementCount(dto.getPostId(), "comment_count");
+            touchHotUpdateTs();
         }
         return result;
     }
@@ -171,6 +185,9 @@ public class ForumCommentServiceImpl implements IForumCommentService
         for (int i = 0; i < deleteCount; i++) {
             forumPostMapper.decrementCount(comment.getPostId(), "comment_count");
         }
+        if (deleteCount > 0) {
+            touchHotUpdateTs();
+        }
         return deleteCount;
     }
 
@@ -191,11 +208,12 @@ public class ForumCommentServiceImpl implements IForumCommentService
         // 4. 点赞数自增+Redis记录
         forumCommentMapper.incrementLikeCount(commentId);
         redisCache.setCacheObject(redisKey, 1, LIKE_LIMIT_SECONDS, TimeUnit.SECONDS);
+        touchHotUpdateTs();
     }
 
     @Override
     public int deleteCommentById(Long id) {
-        return forumCommentMapper.deleteCommentById( id);
+        return deleteForumCommentById(id);
     }
 
     @Override
@@ -248,5 +266,12 @@ public class ForumCommentServiceImpl implements IForumCommentService
         map.put("parentUserName", comment.getParentUserName());
         map.put("userId", comment.getUserId()); // 用于权限判断
         return map;
+    }
+
+    private void touchHotUpdateTs() {
+        long now = System.currentTimeMillis() / 1000;
+        Long latest = redisCache.getCacheObject(FORUM_HOT_UPDATE_KEY);
+        long target = (latest != null && Math.abs(now - latest) <= 1) ? latest : now;
+        redisCache.setCacheObject(FORUM_HOT_UPDATE_KEY, target, 1, TimeUnit.DAYS);
     }
 }

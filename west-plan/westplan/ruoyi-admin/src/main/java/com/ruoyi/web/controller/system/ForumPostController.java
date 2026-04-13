@@ -23,6 +23,7 @@ import com.ruoyi.system.domain.ForumPost;
 import com.ruoyi.system.service.IForumPostService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.SecurityUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -70,8 +71,28 @@ public class ForumPostController extends BaseController
     public AjaxResult selectNewPostList(
             @ApiParam(value = "查询条数", defaultValue = "10") @RequestParam(defaultValue = "10") Integer limit
     ) {
-        Long userId = getLoginUser().getUser().getUserId();
+        Long userId = null;
+        try {
+            userId = SecurityUtils.getLoginUser().getUserId();
+        } catch (Exception ignored) {
+        }
         return AjaxResult.success(forumPostService.selectNewPostList(userId,limit));
+    }
+
+    @ApiOperation("推荐帖子")
+    @GetMapping("/recommend")
+    public AjaxResult recommend(
+            @ApiParam(value = "查询条数", defaultValue = "10") @RequestParam(defaultValue = "10") Integer limit,
+            @ApiParam(value = "板块ID") @RequestParam(required = false) Long boardId,
+            @ApiParam(value = "关键词") @RequestParam(required = false) String keyword
+    ) {
+        return AjaxResult.success(forumPostService.selectRecommendPostList(limit, boardId, keyword));
+    }
+
+    @ApiOperation("论坛统计概览")
+    @GetMapping("/stats")
+    public AjaxResult stats() {
+        return AjaxResult.success(forumPostService.getForumStats());
     }
 
     /**
@@ -117,7 +138,11 @@ public class ForumPostController extends BaseController
     public AjaxResult add(
             @ApiParam(value = "帖子发布参数", required = true) @Validated @RequestBody ForumPostAddDTO dto
     ) {
-        return toAjax(forumPostService.addForumPost(dto));
+        int rows = forumPostService.addForumPost(dto);
+        AjaxResult ajax = toAjax(rows);
+        ajax.put("hotUpdateTs", forumPostService.getHotUpdateTs());
+        ajax.put("serverTs", System.currentTimeMillis() / 1000);
+        return ajax;
     }
 
     /**
@@ -146,7 +171,11 @@ public class ForumPostController extends BaseController
         if (dto.getId() == null) {
             return AjaxResult.error("帖子ID不能为空");
         }
-        return toAjax(forumPostService.auditPost(dto.getId(), dto.getAuditStatus(), dto.getAuditRemark()));
+        int rows = forumPostService.auditPost(dto.getId(), dto.getAuditStatus(), dto.getAuditRemark());
+        AjaxResult ajax = toAjax(rows);
+        ajax.put("hotUpdateTs", forumPostService.getHotUpdateTs());
+        ajax.put("serverTs", System.currentTimeMillis() / 1000);
+        return ajax;
     }
 
 
@@ -162,7 +191,11 @@ public class ForumPostController extends BaseController
         if (forumAudit.getIds() == null || forumAudit.getIds().length == 0) {
             return AjaxResult.error("请选择待审核帖子");
         }
-         return toAjax(forumPostService.batchAuditPost(forumAudit));
+        int rows = forumPostService.batchAuditPost(forumAudit);
+        AjaxResult ajax = toAjax(rows);
+        ajax.put("hotUpdateTs", forumPostService.getHotUpdateTs());
+        ajax.put("serverTs", System.currentTimeMillis() / 1000);
+        return ajax;
     }
     /**
      * 帖子置顶/取消置顶（管理员）

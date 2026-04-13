@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.github.pagehelper.PageInfo;
 import com.ruoyi.system.domain.dto.ForumAudit;
@@ -97,4 +98,19 @@ public interface IForumPostService
      * 查询我的发布帖子
      */
     List<ForumPost> getMyPosts(Long userId, int i);
+
+    /**
+     * 推荐帖子（按热度得分）
+     */
+    List<ForumPost> selectRecommendPostList(Integer limit, Long boardId, String keyword);
+
+    /**
+     * 论坛统计概览
+     */
+    Map<String, Object> getForumStats();
+
+    /**
+     * 获取论坛热更新统一秒级时间戳
+     */
+    Long getHotUpdateTs();
 }

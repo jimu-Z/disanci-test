@@ -143,22 +143,28 @@ public class StudentApplyServiceImpl implements IStudentApplyService
 
     @Override
     public StudentApply selectStudentApplyByWxOpenid(String openId) {
-         StudentApply  studentApply = new StudentApply();
-
-        List<StudentApply> list=  studentApplyMapper.selectStudentApplyList(studentApply);
-        if(list.size()>0)
-         return studentApplyMapper.selectStudentApplyList(studentApply).get(0);
-        return null;
+        if (StringUtils.isBlank(openId)) {
+            return null;
+        }
+        SysUser bindUser = userMapper.selectUserByWxOpenid(openId.trim());
+        if (bindUser == null || bindUser.getUserId() == null) {
+            return null;
+        }
+        return studentApplyMapper.selectStudentApplyByUserId(bindUser.getUserId());
     }
 
     @Override
     public StudentApply selectStudentApplyByIdCardAndPhone(String idCard, String phone) {
-        StudentApply  studentApply = new StudentApply();
+        if (StringUtils.isBlank(idCard) || StringUtils.isBlank(phone)) {
+            return null;
+        }
+        StudentApply studentApply = new StudentApply();
         studentApply.setIdCard(idCard);
         studentApply.setPhone(phone);
-        List<StudentApply> list=  studentApplyMapper.selectStudentApplyList(studentApply);
-        if(list.size()>0)
-            return studentApplyMapper.selectStudentApplyList(studentApply).get(0);
+        List<StudentApply> list = studentApplyMapper.selectStudentApplyList(studentApply);
+        if (list.size() > 0) {
+            return list.get(0);
+        }
         return null;
     }
     private void insertUser(StudentApply student, boolean isUpdateSupport, String operName){

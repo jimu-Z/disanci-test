@@ -222,6 +222,51 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             limit #{limit}
     </select>
 
+    <select id="selectRecommendPostList" resultMap="PostResultMap" parameterType="map">
+        select p.*, b.board_name, u.nick_name, u.avatar,
+               (p.like_count * 3 + p.comment_count * 4 + p.collect_count * 2 + p.view_count) as heat_score
+        from forum_post p
+                 left join forum_board b on p.board_id = b.id
+                 left join sys_user u on p.user_id = u.user_id
+        <where>
+            p.audit_status = 1 and p.is_public = 1
+            <if test="boardId != null">and p.board_id = #{boardId}</if>
+            <if test="keyword != null and keyword != ''">
+                and (
+                    p.post_title like concat('%', #{keyword}, '%')
+                    or p.post_tags like concat('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        order by p.is_top desc, heat_score desc, p.create_time desc
+        limit #{limit}
+    </select>
+
+    <select id="selectForumStats" resultType="map">
+        select
+            count(1) as postTotal,
+            sum(case when audit_status = 1 then 1 else 0 end) as approvedPostTotal,
+            sum(case when audit_status = 0 then 1 else 0 end) as pendingPostTotal,
+            sum(case when is_public = 1 then 1 else 0 end) as publicPostTotal,
+            sum(case when date(create_time) = curdate() then 1 else 0 end) as todayPostTotal,
+            sum(view_count) as viewTotal,
+            sum(like_count) as likeTotal,
+            sum(comment_count) as commentTotal,
+            sum(collect_count) as collectTotal
+        from forum_post
+    </select>
+
+    <select id="selectBoardPostStats" resultType="map">
+        select b.id as boardId,
+               b.board_name as boardName,
+               count(p.id) as postTotal,
+               sum(case when p.audit_status = 1 then 1 else 0 end) as approvedPostTotal
+        from forum_board b
+                 left join forum_post p on p.board_id = b.id
+        group by b.id, b.board_name
+        order by postTotal desc, b.id asc
+    </select>
+
     <select id="selectPostDetailById" resultMap="PostResultMap" parameterType="map">
         select p.*, b.board_name, u.nick_name, u.avatar,
                (select case when count(1) > 0 then 1 else 0 end

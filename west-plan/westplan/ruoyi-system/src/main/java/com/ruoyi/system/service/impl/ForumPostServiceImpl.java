@@ -1,7 +1,9 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -10,6 +12,7 @@ import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.ip.IpUtils;
 
 import com.ruoyi.system.domain.CommonInteract;
 import com.ruoyi.system.domain.ForumBoard;
@@ -56,6 +59,7 @@ public class ForumPostServiceImpl implements IForumPostService
     private static final Integer INTERACT_LIKE = 1;    // 点赞
     private static final Integer INTERACT_COLLECT = 2; // 收藏
     private static final Integer TARGET_TYPE_POST = 1; // 目标类型-帖子
+    private static final String FORUM_HOT_UPDATE_KEY = "forum:hot:update:ts";
     private static final Set<String> ALLOWED_COUNTER_COLUMNS = new HashSet<String>() {{
         add("like_count");
         add("collect_count");
@@ -82,16 +86,51 @@ public class ForumPostServiceImpl implements IForumPostService
     }
 
     @Override
+    public List<ForumPost> selectRecommendPostList(Integer limit, Long boardId, String keyword) {
+        int safeLimit = (limit == null || limit <= 0 || limit > 50) ? 10 : limit;
+        return forumPostMapper.selectRecommendPostList(safeLimit, boardId, keyword);
+    }
+
+    @Override
+    public Map<String, Object> getForumStats() {
+        Map<String, Object> stats = forumPostMapper.selectForumStats();
+        if (stats == null) {
+            stats = new HashMap<>();
+        }
+        stats.put("boardStats", forumPostMapper.selectBoardPostStats());
+        return stats;
+    }
+
+    @Override
+    public Long getHotUpdateTs() {
+        Long ts = redisCache.getCacheObject(FORUM_HOT_UPDATE_KEY);
+        return ts == null ? currentEpochSecond() : ts;
+    }
+
+    @Override
     public ForumPost selectPostDetail(Long id) {
-        // 1. 获取当前用户ID
-        Long userId = SecurityUtils.getLoginUser().getUser().getUserId();
+        Long userId = getCurrentUserIdSafely();
         // 2. 校验帖子存在
         ForumPost post = forumPostMapper.selectPostDetailById(id, userId);
         if (post == null) {
             throw new ServiceException("帖子不存在");
         }
+
+        boolean isOwner = userId != null && userId.equals(post.getUserId());
+        boolean canManage = userId != null && hasForumManageRole();
+        boolean isPublishedPublic = Integer.valueOf(1).equals(post.getAuditStatus())
+                && Integer.valueOf(1).equals(post.getIsPublic());
+        if (!isPublishedPublic && !isOwner && !canManage) {
+            throw new ServiceException("帖子不可见或审核中");
+        }
+
         // 3. 浏览量自增（Redis限流：1分钟内同一用户仅增1次）
-        String redisKey = String.format("forum:post:view:limit:%d:%d", id, userId);
+        String redisKey;
+        if (userId != null) {
+            redisKey = String.format("forum:post:view:limit:%d:%d", id, userId);
+        } else {
+            redisKey = String.format("forum:post:view:limit:guest:%d:%s", id, IpUtils.getIpAddr());
+        }
         if (!redisCache.hasKey(redisKey)) {
             forumPostMapper.incrementViewCount(id);
             redisCache.setCacheObject(redisKey, 1, VIEW_LIMIT_SECONDS, TimeUnit.SECONDS);
@@ -137,7 +176,11 @@ public class ForumPostServiceImpl implements IForumPostService
         post.setCreateBy(user.getUserName());
         post.setUpdateBy(user.getUserName());
         // 4. 插入帖子
-        return forumPostMapper.insertSelective(post);
+        int rows = forumPostMapper.insertSelective(post);
+        if (rows > 0) {
+            touchHotUpdateTs();
+        }
+        return rows;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -167,7 +210,11 @@ public class ForumPostServiceImpl implements IForumPostService
         oldPost.setAuditStatus(0); // 重新待审核
         oldPost.setUpdateBy(user.getUserName());
         // 5. 保存修改
-        return forumPostMapper.updateByPrimaryKeySelective(oldPost);
+        int rows = forumPostMapper.updateByPrimaryKeySelective(oldPost);
+        if (rows > 0) {
+            touchHotUpdateTs();
+        }
+        return rows;
     }
 
     @Override
@@ -195,6 +242,7 @@ public class ForumPostServiceImpl implements IForumPostService
         if (rows == 0) {
             throw new ServiceException("帖子状态已变更，请刷新后重试");
         }
+        touchHotUpdateTs();
 
         log.info("forum post audit: operator={}, postId={}, beforeStatus={}, afterStatus={}, auditRemark={}",
                 operator, id, beforeStatus, auditStatus, StringUtils.defaultString(targetRemark));
@@ -214,6 +262,9 @@ public class ForumPostServiceImpl implements IForumPostService
         for (Long id : forumAudit.getIds()) {
             rows += auditPost(id, forumAudit.getAuditStatus(), forumAudit.getAuditRemark());
         }
+        if (rows > 0) {
+            touchHotUpdateTs();
+        }
         log.info("forum post batch audit end: operator={}, successRows={}", operator, rows);
         return rows;
     }
@@ -225,9 +276,16 @@ public class ForumPostServiceImpl implements IForumPostService
         if (post == null) {
             throw new ServiceException("帖子不存在");
         }
+        if (isTop == null || (isTop != 0 && isTop != 1)) {
+            throw new ServiceException("置顶参数不合法");
+        }
         post.setIsTop(isTop);
         post.setUpdateBy(SecurityUtils.getLoginUser().getUsername());
-        return forumPostMapper.updateByPrimaryKeySelective(post);
+        int rows = forumPostMapper.updateByPrimaryKeySelective(post);
+        if (rows > 0) {
+            touchHotUpdateTs();
+        }
+        return rows;
     }
 
     @Override
@@ -237,9 +295,16 @@ public class ForumPostServiceImpl implements IForumPostService
         if (post == null) {
             throw new ServiceException("帖子不存在");
         }
+        if (isHot == null || (isHot != 0 && isHot != 1)) {
+            throw new ServiceException("热点参数不合法");
+        }
         post.setIsHot(isHot);
         post.setUpdateBy(SecurityUtils.getLoginUser().getUsername());
-        return forumPostMapper.updateByPrimaryKeySelective(post);
+        int rows = forumPostMapper.updateByPrimaryKeySelective(post);
+        if (rows > 0) {
+            touchHotUpdateTs();
+        }
+        return rows;
     }
 
     @Override
@@ -258,7 +323,11 @@ public class ForumPostServiceImpl implements IForumPostService
         // 2. 删除帖子+关联评论+关联互动记录
         forumCommentMapper.deleteCommentByPostIds(ids); // 删评论
         commonInteractMapper.deleteInteractByTargetIds(TARGET_TYPE_POST, ids); // 删互动记录
-        return forumPostMapper.deletePostByIds(ids); // 删帖子
+        int rows = forumPostMapper.deletePostByIds(ids); // 删帖子
+        if (rows > 0) {
+            touchHotUpdateTs();
+        }
+        return rows;
     }
 
     @Override
@@ -309,11 +378,19 @@ public class ForumPostServiceImpl implements IForumPostService
             throw new ServiceException("非法计数字段");
         }
         // 1. 校验帖子存在
-        if (forumPostMapper.selectByPrimaryKey(postId) == null) {
+        ForumPost post = forumPostMapper.selectByPrimaryKey(postId);
+        if (post == null) {
             throw new ServiceException("帖子不存在");
         }
         // 2. 获取当前用户
         Long userId = SecurityUtils.getLoginUser().getUser().getUserId();
+        boolean isOwner = userId.equals(post.getUserId());
+        boolean canManage = hasForumManageRole();
+        boolean isPublishedPublic = Integer.valueOf(1).equals(post.getAuditStatus())
+                && Integer.valueOf(1).equals(post.getIsPublic());
+        if (!isPublishedPublic && !isOwner && !canManage) {
+            throw new ServiceException("帖子不可交互");
+        }
         // 3. 查询现有互动记录
         CommonInteract interact = commonInteractMapper.selectInteractByUser(
                 userId, TARGET_TYPE_POST, postId, interactType
@@ -335,6 +412,34 @@ public class ForumPostServiceImpl implements IForumPostService
             );
             forumPostMapper.decrementCount(postId, column);
         }
+        touchHotUpdateTs();
+    }
+
+    private Long getCurrentUserIdSafely() {
+        try {
+            return SecurityUtils.getLoginUser().getUserId();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private boolean hasForumManageRole() {
+        try {
+            return SecurityUtils.hasRole("super_admin") || SecurityUtils.hasRole("common_admin");
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private long currentEpochSecond() {
+        return System.currentTimeMillis() / 1000;
+    }
+
+    private void touchHotUpdateTs() {
+        long now = currentEpochSecond();
+        Long latest = redisCache.getCacheObject(FORUM_HOT_UPDATE_KEY);
+        long target = (latest != null && Math.abs(now - latest) <= 1) ? latest : now;
+        redisCache.setCacheObject(FORUM_HOT_UPDATE_KEY, target, 1, TimeUnit.DAYS);
     }
 
 

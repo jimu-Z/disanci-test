@@ -106,7 +106,16 @@ public class ForumCommentController extends BaseController
     public AjaxResult remove(
             @ApiParam(value = "评论ID", required = true) @PathVariable Long id
     ) {
-        return toAjax(forumCommentService.deleteCommentById(id));
+        return toAjax(forumCommentService.deleteForumCommentById(id));
+    }
+
+    @ApiOperation("帖子最新评论")
+    @GetMapping("/recent/{postId}")
+    public AjaxResult recentByPost(
+            @ApiParam(value = "帖子ID", required = true) @PathVariable Long postId,
+            @ApiParam(value = "查询条数", defaultValue = "10") @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") Integer limit
+    ) {
+        return AjaxResult.success(forumCommentService.selectRecentCommentByPostId(postId, limit));
     }
 
     /**

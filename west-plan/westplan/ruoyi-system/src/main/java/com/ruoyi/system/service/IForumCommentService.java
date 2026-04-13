@@ -73,4 +73,5 @@ public interface IForumCommentService
     int    deleteCommentByPostId(Long postid) ;
     int deleteCommentById(Long id);
     int deleteCommentByPostIds(Long[] ids);
+    List<ForumComment> selectRecentCommentByPostId(Long postId, Integer limit);
 }

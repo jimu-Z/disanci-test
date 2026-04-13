@@ -41,7 +41,6 @@
 
 <script >
 import { mapGetters } from 'vuex';
-import { hasPermi } from '@/utils/permission'
 import { getQuestion_bank } from '@/api/system/question_bank'
 export default {
   name: 'ForumIndex',
@@ -84,11 +83,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['isLogin', 'id', 'permissions']),
-    // 权限判断方法
-    hasPermi: function() {
-      return hasPermi;
-    }
+    ...mapGetters(['isLogin', 'id', 'permissions'])
   }
 
 }

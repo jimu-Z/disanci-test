@@ -117,6 +117,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where c.post_id = #{postId} and c.audit_status = 1
         order by c.create_time asc
     </select>
+
+    <select id="selectRecentCommentByPostId" resultMap="ForumCommentResult">
+        select c.*, u.nick_name as user_name, u.avatar, pu.nick_name as parent_user_name
+        from forum_comment c
+                 left join sys_user u on c.user_id = u.user_id
+                 left join forum_comment pc on c.parent_id = pc.id
+                 left join sys_user pu on pc.user_id = pu.user_id
+        where c.post_id = #{postId} and c.audit_status = 1
+        order by c.create_time desc
+        limit #{limit}
+    </select>
     <select id="selectChildCommentByParentId" resultMap="ForumCommentResult">
         select c.*, u.nick_name as user_name, u.avatar, pu.nick_name as parent_user_name
         from forum_comment c

@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
             DictUtils.setDictCache(dictType, dictDatas);
             return dictDatas;
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**

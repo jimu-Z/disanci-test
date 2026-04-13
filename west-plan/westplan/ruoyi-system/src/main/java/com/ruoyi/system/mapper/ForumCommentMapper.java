@@ -26,6 +26,7 @@ public interface ForumCommentMapper
     // 自定义方法
     /** 根据帖子ID查询评论列表（联表用户，平级） */
     List<ForumComment> selectCommentListByPostId(Long postId);
+    List<ForumComment> selectRecentCommentByPostId(@Param("postId") Long postId, @Param("limit") Integer limit);
     /** 根据父评论ID查询子评论 */
     List<ForumComment> selectChildCommentByParentId(Long parentId);
     /** 评论点赞数自增 */

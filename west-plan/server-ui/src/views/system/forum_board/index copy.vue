@@ -165,7 +165,7 @@
 <script>
 import {listForum_board,enableList,getForum_board,addForum_board,updateForum_board,delForum_board} from '@/api/system/forum_board';
 import { mapGetters } from 'vuex';
-import { formatTime, hasPermi } from '@/utils/utils';
+import { formatTime } from '@/utils/utils';
 import { export_json_to_excel } from '@/utils/excel'; // Vue2内置Excel导出
 
 export default {
@@ -209,16 +209,15 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['permissionList']),
-    // 权限判断
-    hasPermi: function() {
-      return hasPermi;
-    }
+    ...mapGetters(['permissionList'])
   },
   created() {
     this.getBoardList();
   },
   methods: {
+    hasPermi(permission) {
+      return this.$auth.hasPermi(permission);
+    },
     // 获取板块列表
     async getBoardList() {
       this.loading = true;

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * 登录校验方法
@@ -77,13 +78,22 @@ public class SysLoginService
 
         try
         {
-            // 前端 jsencrypt 的输出本身就是 Base64 密文，后端应直接按 RSA 密文解密。
+            // v2协议：前端直接传递 RSA 密文（JSEncrypt 输出）
             return RsaUtuils.decryptRSA(text, privateKeyContent);
         }
         catch (Exception e)
         {
-            // 兼容未加密或格式不符合 RSA 密文的请求
-            return text;
+            // v1兼容：历史前端为 Base64(RSA密文)
+            try
+            {
+                String legacyCipher = new String(Base64.getDecoder().decode(text), StandardCharsets.UTF_8);
+                return RsaUtuils.decryptRSA(legacyCipher, privateKeyContent);
+            }
+            catch (Exception ex)
+            {
+                // 兼容未加密或非期望格式请求
+                return text;
+            }
         }
     }
 

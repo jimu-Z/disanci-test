@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.ForumPost;
 import org.apache.ibatis.annotations.Param;
 /**
@@ -27,6 +28,11 @@ public interface ForumPostMapper
     /** 查询最新发布帖子（论坛首页） */
     List<ForumPost> selectNewPostList(@Param("userId")Long userId,@Param("limit") Integer limit);
     List<ForumPost> selectMyPosts(@Param("userId")Long userId,@Param("limit") Integer limit);
+    List<ForumPost> selectRecommendPostList(@Param("limit") Integer limit,
+                                            @Param("boardId") Long boardId,
+                                            @Param("keyword") String keyword);
+    Map<String, Object> selectForumStats();
+    List<Map<String, Object>> selectBoardPostStats();
     /** 帖子详情（联表） */
     ForumPost selectPostDetailById(@Param("id") Long id, @Param("currentUserId") Long currentUserId);
     /** 浏览量自增（防重复） */
