@@ -74,7 +74,16 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && alumni_messageList.length === 0"
+      empty-text="暂无私信数据"
+      error-text="私信数据加载失败，请重试"
+      @retry="getList"
+    />
+
+    <pagination v-show="total > 0 && !loadError" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
     <!-- 添加或修改校友私信对话框 -->
@@ -112,9 +121,13 @@
 <script>
 import { listAlumni_message, getAlumni_message, delAlumni_message, addAlumni_message, updateAlumni_message } from "@/api/system/alumni_message"
 import { uploadImage } from "@/api/system/uploadImage"
+import RequestState from "@/components/RequestState"
 import xss from 'xss'
 export default {
   name: "Alumni_message",
+  components: {
+    RequestState
+  },
   data() {
     return {
       //编辑器配置，防止恶意上传
@@ -133,6 +146,7 @@ export default {
       },
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -243,13 +257,20 @@ export default {
 
 
     /** 查询校友私信列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listAlumni_message(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listAlumni_message(this.queryParams)
         this.alumni_messageList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.alumni_messageList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

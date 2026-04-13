@@ -95,9 +95,18 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && common_interactList.length === 0"
+      empty-text="暂无互动数据"
+      error-text="互动数据加载失败，请重试"
+      @retry="getList"
+    />
     
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -124,13 +133,18 @@
 
 <script>
 import { listCommon_interact, getCommon_interact, delCommon_interact, addCommon_interact, updateCommon_interact } from "@/api/system/common_interact"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Common_interact",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -180,13 +194,20 @@ export default {
   },
   methods: {
     /** 查询通用点赞/收藏列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listCommon_interact(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listCommon_interact(this.queryParams)
         this.common_interactList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.common_interactList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

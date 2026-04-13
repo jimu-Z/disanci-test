@@ -93,9 +93,18 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && alumni_followList.length === 0"
+      empty-text="暂无关注数据"
+      error-text="关注数据加载失败，请重试"
+      @retry="getList"
+    />
     
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -122,13 +131,18 @@
 
 <script>
 import { listAlumni_follow, getAlumni_follow, delAlumni_follow, addAlumni_follow, updateAlumni_follow } from "@/api/system/alumni_follow"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Alumni_follow",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -170,13 +184,20 @@ export default {
   },
   methods: {
     /** 查询校友关注列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listAlumni_follow(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listAlumni_follow(this.queryParams)
         this.alumni_followList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.alumni_followList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -64,7 +64,16 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && question_bankList.length === 0"
+      empty-text="暂无题库数据"
+      error-text="题库数据加载失败，请重试"
+      @retry="getList"
+    />
+
+    <pagination v-show="total > 0 && !loadError" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
     <!-- 添加或修改题库信息对话框 -->
@@ -110,9 +119,13 @@
 <script>
 import { listQuestion_bank, getQuestion_bank, delQuestion_bank, addQuestion_bank, updateQuestion_bank } from "@/api/system/question_bank"
 import { uploadImage } from "@/api/system/uploadImage"
+import RequestState from "@/components/RequestState"
 import xss from 'xss'
 export default {
   name: "Question_bank",
+  components: {
+    RequestState
+  },
   data() {
     return {
       //编辑器配置，防止恶意上传
@@ -132,6 +145,7 @@ export default {
 
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -246,13 +260,20 @@ export default {
     },
 
     /** 查询题库信息列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listQuestion_bank(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listQuestion_bank(this.queryParams)
         this.question_bankList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.question_bankList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -101,17 +101,13 @@ export default {
       this.honorId = this.$route.params.id;
 
       if (!this.honorId) {
-        alert("参数错误")
+        this.$message.error("参数错误，无法加载详情")
         return this.$router.back()
       } else {//编辑
         try {
-
-          getAlumni_honor(this.honorId).then(response => {
-
-            this.form = response.data
-            this.imagelist = response.data.honorAttach.split(',');
-
-          })
+          const response = await getAlumni_honor(this.honorId)
+          this.form = response.data
+          this.imagelist = response.data.honorAttach ? response.data.honorAttach.split(',') : []
 
           // console.log('editPostForm', this.editPostForm);
         } catch (error) {
@@ -138,8 +134,8 @@ export default {
       this.$modal.confirm('是否确认删除校友荣誉彰编号为"' + ids + '"的数据项？').then(function () {
         return delAlumni_honor(ids)
       }).then(() => {
-        this.getList()
         this.$modal.msgSuccess("删除成功")
+        this.$router.back()
       }).catch(() => { })
     },
  /** 修改按钮操作 */
@@ -149,11 +145,15 @@ export default {
     },
     /** 删除按钮操作 */
     toDelete( ) {
-      if(confirm('是否确认删除编号为"' + this.honorId + '"的数据项？')){
-        delAlumni_honor(this.honorId )
+      this.$confirm('是否确认删除编号为"' + this.honorId + '"的数据项？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        await delAlumni_honor(this.honorId)
         this.$message.success("删除成功")
-      }
-       this.$router.go(-1)
+        this.$router.back()
+      }).catch(() => {})
 
      },
   }

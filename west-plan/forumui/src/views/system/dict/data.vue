@@ -132,8 +132,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && dataList.length === 0"
+      empty-text="暂无字典数据"
+      error-text="字典数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -192,14 +201,19 @@
 <script>
 import { listData, getData, delData, addData, updateData } from "@/api/system/dict/data"
 import { optionselect as getDictOptionselect, getType } from "@/api/system/dict/type"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Data",
   dicts: ['sys_normal_disable'],
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -292,13 +306,20 @@ export default {
       })
     },
     /** 查询字典数据列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listData(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listData(this.queryParams)
         this.dataList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.dataList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

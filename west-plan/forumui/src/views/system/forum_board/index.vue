@@ -97,8 +97,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && forum_boardList.length === 0"
+      empty-text="暂无板块数据"
+      error-text="板块加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -128,13 +137,18 @@
 
 <script>
 import { listForum_board, getForum_board, delForum_board, addForum_board, updateForum_board } from "@/api/system/forum_board"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Forum_board",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -181,13 +195,20 @@ export default {
   },
   methods: {
     /** 查询论坛板块列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listForum_board(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listForum_board(this.queryParams)
         this.forum_boardList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.forum_boardList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

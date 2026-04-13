@@ -96,6 +96,15 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && deptList.length === 0"
+      empty-text="暂无部门数据"
+      error-text="部门数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <!-- 添加或修改部门对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -161,15 +170,17 @@
 import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from "@/api/system/dept"
 import Treeselect from "@riophae/vue-treeselect"
 import "@riophae/vue-treeselect/dist/vue-treeselect.css"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Dept",
   dicts: ['sys_normal_disable'],
-  components: { Treeselect },
+  components: { Treeselect, RequestState },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 显示搜索条件
       showSearch: true,
       // 表格树数据
@@ -224,12 +235,18 @@ export default {
   },
   methods: {
     /** 查询部门列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listDept(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listDept(this.queryParams)
         this.deptList = this.handleTree(response.data, "deptId")
+      } catch (e) {
+        this.deptList = []
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     /** 转换部门数据结构 */
     normalizer(node) {

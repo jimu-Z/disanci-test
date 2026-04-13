@@ -179,20 +179,18 @@ export default {
 
       // 无ID为添加
       if (!this.resumeId) {
-        handleAdd()
+        this.handleAdd()
       } else {//编辑
         try {
-
-          getStudent_resume(this.resumeId ).then(response => {
-            this.form = response.data
-            this.form.serviceRegion = {
-              provinceCode: response.data.serviceProvince,
-              cityCode: response.data.serviceCity,
-              districtCode: response.data.serviceCounty
-            }
-            this.open = true
-            this.title = "修改学生履历"
-          })
+          const response = await getStudent_resume(this.resumeId)
+          this.form = response.data
+          this.form.serviceRegion = {
+            provinceCode: response.data.serviceProvince,
+            cityCode: response.data.serviceCity,
+            districtCode: response.data.serviceCounty
+          }
+          this.open = true
+          this.title = "修改学生履历"
 
           // console.log('editPostForm', this.editPostForm);
         } catch (error) {
@@ -202,16 +200,6 @@ export default {
       }
       // 2. 并行加载板块列表和帖子详情（提升性能）
 
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1
-      this.getList()
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm")
-      this.handleQuery()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -262,25 +250,24 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-
-          if (this.form.id != null) {
-            updateStudent_resume(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功")
-              this.open = false
-              this.getList()
-            })
-          } else {
-            addStudent_resume(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功")
-              this.open = false
-              this.getList()
-            })
-          }
+      this.$refs["form"].validate(async valid => {
+        if (!valid) {
+          return
         }
-        //返回上一个页面
-        this.$router.back()
+
+        try {
+          if (this.form.id != null) {
+            await updateStudent_resume(this.form)
+            this.$modal.msgSuccess("修改成功")
+          } else {
+            await addStudent_resume(this.form)
+            this.$modal.msgSuccess("新增成功")
+          }
+          this.open = false
+          this.$router.back()
+        } catch (e) {
+          this.$message.error((e && e.message) || "提交失败，请稍后重试")
+        }
       })
     },
     /** 删除按钮操作 */
@@ -289,8 +276,8 @@ export default {
       this.$modal.confirm('是否确认删除学生履历编号为"' + ids + '"的数据项？').then(function () {
         return delStudent_resume(ids)
       }).then(() => {
-        this.getList()
         this.$modal.msgSuccess("删除成功")
+        this.$router.back()
       }).catch(() => { })
     },
     /** 导出按钮操作 */

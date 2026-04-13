@@ -88,8 +88,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && userList.length === 0"
+      empty-text="暂无授权用户"
+      error-text="授权用户加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -102,15 +111,17 @@
 <script>
 import { allocatedUserList, authUserCancel, authUserCancelAll } from "@/api/system/role"
 import selectUser from "./selectUser"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "AuthUser",
   dicts: ['sys_normal_disable'],
-  components: { selectUser },
+  components: { selectUser, RequestState },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中用户组
       userIds: [],
       // 非多个禁用
@@ -140,14 +151,20 @@ export default {
   },
   methods: {
     /** 查询授权用户列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      allocatedUserList(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await allocatedUserList(this.queryParams)
           this.userList = response.rows
           this.total = response.total
+      } catch (e) {
+          this.userList = []
+          this.total = 0
+          this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
           this.loading = false
-        }
-      )
+      }
     },
     // 返回按钮
     handleClose() {

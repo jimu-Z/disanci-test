@@ -77,7 +77,16 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && alumni_honorList.length === 0"
+      empty-text="暂无荣誉数据"
+      error-text="荣誉加载失败，请重试"
+      @retry="getList"
+    />
+
+    <pagination v-show="total > 0 && !loadError" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
     <!-- 添加或修改校友荣誉彰对话框 -->
@@ -139,9 +148,12 @@
 <script>
 import { listAlumni_honor, getAlumni_honor, delAlumni_honor, addAlumni_honor, updateAlumni_honor } from "@/api/system/alumni_honor"
 import { getToken } from '@/utils/auth'
-import { computed } from "vue";
+import RequestState from "@/components/RequestState"
 export default {
   name: "Alumni_honor",
+  components: {
+    RequestState
+  },
   data() {
     return {
       headers: {
@@ -159,6 +171,7 @@ export default {
       previews: {},
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -257,10 +270,9 @@ export default {
       if (index !== -1) {
         this.imagelist.splice(index, 1);
       }
-      console.log(this.imagelist)
       this.$refs.upload.fileList = this.imagelist;
       // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       } else {
         this.hasFile = false
@@ -316,13 +328,20 @@ export default {
       this.currentPreviewUrl = imgUrl;
     },
     /** 查询校友荣誉彰列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listAlumni_honor(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listAlumni_honor(this.queryParams)
         this.alumni_honorList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.alumni_honorList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

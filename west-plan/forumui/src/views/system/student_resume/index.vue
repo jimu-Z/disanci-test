@@ -123,8 +123,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && student_resumeList.length === 0"
+      empty-text="暂无履历数据"
+      error-text="履历加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -179,11 +188,13 @@
 <script>
 import { listStudent_resume, getStudent_resume, delStudent_resume, addStudent_resume, updateStudent_resume } from "@/api/system/student_resume"
 import RegionSelector from '@/components/RegionSelector';
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Student_resume",
   components: {
-    RegionSelector // 注册组件
+    RegionSelector,
+    RequestState
   },
   data() {
     return {
@@ -192,6 +203,7 @@ export default {
       isDisabled: false,
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -275,13 +287,20 @@ export default {
   },
   methods: {
     /** 查询学生履历列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listStudent_resume(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listStudent_resume(this.queryParams)
         this.student_resumeList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.student_resumeList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

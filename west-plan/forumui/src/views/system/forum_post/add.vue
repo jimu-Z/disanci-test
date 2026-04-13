@@ -161,7 +161,6 @@ export default {
         }
       },
       // 文件上传相关
-      uploadUrl: process.env.BASE_API + '/system/file/upload',
       uploadHeaders: {
         Authorization: 'Bearer ' + getToken()
       },
@@ -286,10 +285,9 @@ export default {
       if (index !== -1) {
         this.imagelist.splice(index, 1);
       }
-      console.log(this.imagelist)
       this.$refs.upload.fileList = this.imagelist;
       // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       } else {
         this.hasFile = false

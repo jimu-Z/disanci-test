@@ -5,7 +5,6 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
-import r from 'highlight.js/lib/languages/r'
 
 /**
  * Note: 路由配置项
@@ -91,184 +90,184 @@ export const constantRoutes = [
   },
   //个人中心
   {
-      path: '/system/alumni',
-      name: 'Alumni',
-      component: Layout,
-      redirect: '/system/alumni/index',
-      hidden: true,
-      children: [
-        {
-          path: 'index',
-          component: () => import('@/views/system/alumni/mydesktop'),
-          name: 'mydesktop',
-          meta: { title: '我的桌面', icon: 'user' }
-        }
-      ]
+    path: '/system/alumni',
+    name: 'Alumni',
+    component: Layout,
+    redirect: '/system/alumni/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/system/alumni/mydesktop'),
+        name: 'mydesktop',
+        meta: { title: '我的桌面', icon: 'user' }
+      }
+    ]
   },
   //留言模块
   {
-      path: '/system/message',
-      name: 'message',
-      component: Layout,
-      redirect: '/system/message/index',
-      hidden: true,
-      children: [
-        {
-          path: 'index',
-          component: () => import('@/views/system/message/index'),
-          name: 'message',
-          meta: { title: '我的留言', icon: 'user' }
-        }
-      ]
+    path: '/system/message',
+    name: 'message',
+    component: Layout,
+    redirect: '/system/message/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/system/message/index'),
+        name: 'message',
+        meta: { title: '我的留言', icon: 'user' }
+      }
+    ]
   },
   // 论坛模块主路由（嵌套路由，统一管理论坛所有页面）
-    {
-      path: '/system/forum',
-      name: 'Forum',
-      redirect: '/system/forum/index', // 重定向到论坛首页
-      meta: { title: '论坛管理', icon: 'el-icon-chat-dot-round' }, // 侧边栏/面包屑配置
-      component: Layout,
-        hidden: true,
-      children: [
-        // 1. 论坛首页（核心：对应生成的ForumIndex.vue）
-        {
-          path: 'index',
-          name: 'ForumIndex',
-          component: () => import('@/views/system/forum_post/index'), // 论坛首页组件路径
-          meta: { title: '论坛首页', icon: 'el-icon-home', noCache: true }
-        },
-        // 2. 帖子发布页（需登录权限）
-        {
-          path: 'post/add',
-          name: 'ForumPostAdd',
-          component: () => import('@/views/system/forum_post/add'), // 帖子发布组件路径
-          meta: { title: '发布新帖', icon: 'el-icon-plus', requireAuth: true }, // requireAuth：标记需登录
-          hidden: false // false：显示在侧边栏；true：隐藏（仅通过按钮跳转）
-        },
-        // 3. 帖子详情页（动态路由，传帖子ID）
-        {
-          path: 'post/detail/:id', // :id为动态参数，接收帖子ID
-          name: 'ForumPostDetail',
-          component: () => import('@/views/system/forum_post/postDetail'), // 帖子详情组件路径
-          meta: { title: '帖子详情', requireAuth: true }, // 无需登录即可查看
-          hidden: true // 隐藏在侧边栏，仅通过首页帖子列表跳转
-        },
-        // 4. 帖子编辑页（可选，需登录+作者权限）
-        {
-          path: 'post/edit/:id',
-          name: 'ForumPostEdit',
-          component: () => import('@/views/system/forum_post/postEdit'),
-          meta: { title: '编辑帖子', requireAuth: true },
-          hidden: true
-        }
-      ]
-    },
-    //题库模块路由
-    {
-      path: '/system/question',
-      name: 'Question',
-      redirect: '/system/question/index',
-      meta: { title: '题库管理', icon: 'el-icon-s-promotion' },
-      component: Layout,
-      hidden: true,
-      children: [
-        {
-          path: 'index',
-          name: 'QuestionIndex',
-          component: () => import('@/views/system/question_bank/questionList'),
-           meta: { title: '题库列表', requireAuth: true },
-          hidden: true
-        },
-         {
-          path: 'detail/:id',
-          name: 'QuestionDetail',
-          component: () => import('@/views/system/question_bank/questionDetail'),
-           meta: { title: '题目详情', requireAuth: true },
-          hidden: true
-        }
-      ]
-    },
-    //个人简历模块路由
-    {
-      path: '/system/resume',
-      name: 'Resume',
-      redirect: '/system/resume/index',
-      meta: { title: '个人简历管理', icon: 'el-icon-s-promotion' },
-      component: Layout,
-      hidden: true,
-      children: [
-        {
-          path: 'index',
-          name: 'ResumeIndex',
-          component: () => import('@/views/system/student_resume/index'),
-           meta: { title: '个人简历', requireAuth: true },
-          hidden: true
-        },
-         {
-          path: 'detail/:id',
-          name: 'resumeDetail',
-          component: () => import('@/views/system/student_resume/resumeDetail'),
-           meta: { title: '简历详情', requireAuth: true },
-          hidden: true
-        }        ,
-         {
-          path: 'edit/:id',
-          name: 'resumeEdit',
-          component: () => import('@/views/system/student_resume/resumeAdd'),
-           meta: { title: '简历编辑', requireAuth: true },
-          hidden: true
-        }
-        ,
-         {
-          path: 'add',
-          name: 'resumeAdd',
-          component: () => import('@/views/system/student_resume/resumeAdd'),
-           meta: { title: '简历添加', requireAuth: true },
-          hidden: true
-        }
-      ]
-    },
-    //获奖
-     {
-      path: '/system/honor',
-      name: 'Honor',
-      redirect: '/system/honor/index',
-      meta: { title: '个人获奖管理', icon: 'el-icon-s-promotion' },
-      component: Layout,
-      hidden: true,
-      children: [
-        {
-          path: 'index',
-          name: 'honorIndex',
-          component: () => import('@/views/system/alumni_honor/index'),
-           meta: { title: '获奖列表', requireAuth: true },
-          hidden: true
-        },
-         {
-          path: 'detail/:id',
-          name: 'honorDetail',
-          component: () => import('@/views/system/alumni_honor/honorDetail'),
-           meta: { title: '获奖详情', requireAuth: true },
-          hidden: true
-        }        ,
-         {
-          path: 'edit/:id',
-          name: 'honorEdit',
-          component: () => import('@/views/system/alumni_honor/honorAdd'),
-           meta: { title: '获奖编辑', requireAuth: true },
-          hidden: true
-        }
-        ,
-         {
-          path: 'add',
-          name: 'honorAdd',
-          component: () => import('@/views/system/alumni_honor/honorAdd'),
-           meta: { title: '获奖添加', requireAuth: true },
-          hidden: true
-        }
-      ]
-    },
-      //录取信息
+  {
+    path: '/system/forum',
+    name: 'Forum',
+    redirect: '/system/forum/index', // 重定向到论坛首页
+    meta: { title: '论坛管理', icon: 'el-icon-chat-dot-round' }, // 侧边栏/面包屑配置
+    component: Layout,
+    hidden: true,
+    children: [
+      // 1. 论坛首页（核心：对应生成的ForumIndex.vue）
+      {
+        path: 'index',
+        name: 'ForumIndex',
+        component: () => import('@/views/system/forum_post/index'), // 论坛首页组件路径
+        meta: { title: '论坛首页', icon: 'el-icon-home', noCache: true }
+      },
+      // 2. 帖子发布页（需登录权限）
+      {
+        path: 'post/add',
+        name: 'ForumPostAdd',
+        component: () => import('@/views/system/forum_post/add'), // 帖子发布组件路径
+        meta: { title: '发布新帖', icon: 'el-icon-plus', requireAuth: true }, // requireAuth：标记需登录
+        hidden: false // false：显示在侧边栏；true：隐藏（仅通过按钮跳转）
+      },
+      // 3. 帖子详情页（动态路由，传帖子ID）
+      {
+        path: 'post/detail/:id', // :id为动态参数，接收帖子ID
+        name: 'ForumPostDetail',
+        component: () => import('@/views/system/forum_post/postDetail'), // 帖子详情组件路径
+        meta: { title: '帖子详情', requireAuth: true }, // 无需登录即可查看
+        hidden: true // 隐藏在侧边栏，仅通过首页帖子列表跳转
+      },
+      // 4. 帖子编辑页（可选，需登录+作者权限）
+      {
+        path: 'post/edit/:id',
+        name: 'ForumPostEdit',
+        component: () => import('@/views/system/forum_post/postEdit'),
+        meta: { title: '编辑帖子', requireAuth: true },
+        hidden: true
+      }
+    ]
+  },
+  //题库模块路由
+  {
+    path: '/system/question',
+    name: 'Question',
+    redirect: '/system/question/index',
+    meta: { title: '题库管理', icon: 'el-icon-s-promotion' },
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'QuestionIndex',
+        component: () => import('@/views/system/question_bank/questionList'),
+        meta: { title: '题库列表', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'detail/:id',
+        name: 'QuestionDetail',
+        component: () => import('@/views/system/question_bank/questionDetail'),
+        meta: { title: '题目详情', requireAuth: true },
+        hidden: true
+      }
+    ]
+  },
+  //个人简历模块路由
+  {
+    path: '/system/resume',
+    name: 'Resume',
+    redirect: '/system/resume/index',
+    meta: { title: '个人简历管理', icon: 'el-icon-s-promotion' },
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ResumeIndex',
+        component: () => import('@/views/system/student_resume/index'),
+        meta: { title: '个人简历', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'detail/:id',
+        name: 'resumeDetail',
+        component: () => import('@/views/system/student_resume/resumeDetail'),
+        meta: { title: '简历详情', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'edit/:id',
+        name: 'resumeEdit',
+        component: () => import('@/views/system/student_resume/resumeAdd'),
+        meta: { title: '简历编辑', requireAuth: true },
+        hidden: true
+      }
+      ,
+      {
+        path: 'add',
+        name: 'resumeAdd',
+        component: () => import('@/views/system/student_resume/resumeAdd'),
+        meta: { title: '简历添加', requireAuth: true },
+        hidden: true
+      }
+    ]
+  },
+  //获奖
+  {
+    path: '/system/honor',
+    name: 'Honor',
+    redirect: '/system/honor/index',
+    meta: { title: '个人获奖管理', icon: 'el-icon-s-promotion' },
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'honorIndex',
+        component: () => import('@/views/system/alumni_honor/index'),
+        meta: { title: '获奖列表', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'detail/:id',
+        name: 'honorDetail',
+        component: () => import('@/views/system/alumni_honor/honorDetail'),
+        meta: { title: '获奖详情', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'edit/:id',
+        name: 'honorEdit',
+        component: () => import('@/views/system/alumni_honor/honorAdd'),
+        meta: { title: '获奖编辑', requireAuth: true },
+        hidden: true
+      }
+      ,
+      {
+        path: 'add',
+        name: 'honorAdd',
+        component: () => import('@/views/system/alumni_honor/honorAdd'),
+        meta: { title: '获奖添加', requireAuth: true },
+        hidden: true
+      }
+    ]
+  },
+  //录取信息
   {
     path: "/system/admission",
     name: "admission",
@@ -291,7 +290,7 @@ export const constantRoutes = [
         meta: { title: "校友查询", requireAuth: true },
         hidden: true,
       },
-       {
+      {
         path: "chart",
         name: "admissionChart",
         component: () => import("@/views/system/student_admission/studentChart"),
@@ -300,7 +299,7 @@ export const constantRoutes = [
       },
     ],
   },
-     //新闻
+  //新闻
   {
     path: "/system/notice",
     name: "news",
@@ -339,46 +338,46 @@ export const constantRoutes = [
       },
     ],
   },
- //工作感受
-     {
-      path: '/system/feeling',
-      name: 'feeling',
-      redirect: '/system/feeling/index',
-      meta: { title: '个人风采', icon: 'el-icon-s-promotion' },
-      component: Layout,
-      hidden: true,
-      children: [
-        {
-          path: 'index',
-          name: 'feelingIndex',
-          component: () => import('@/views/system/alumni_feeling/index'),
-           meta: { title: '个人风采', requireAuth: true },
-          hidden: true
-        },
-         {
-          path: 'detail/:id',
-          name: 'feelingDetail',
-          component: () => import('@/views/system/alumni_feeling/feelingDetail'),
-           meta: { title: '个人风采详情', requireAuth: true },
-          hidden: true
-        }        ,
-         {
-          path: 'edit/:id',
-          name: 'feelingEdit',
-          component: () => import('@/views/system/alumni_feeling/feelingAdd'),
-           meta: { title: '个人风采编辑', requireAuth: true },
-          hidden: true
-        }
-        ,
-         {
-          path: 'add',
-          name: 'feelingAdd',
-          component: () => import('@/views/system/alumni_feeling/feelingAdd'),
-           meta: { title: '个人风采添加', requireAuth: true },
-          hidden: true
-        }
-      ]
-    },
+  //工作感受
+  {
+    path: '/system/feeling',
+    name: 'feeling',
+    redirect: '/system/feeling/index',
+    meta: { title: '个人风采', icon: 'el-icon-s-promotion' },
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'feelingIndex',
+        component: () => import('@/views/system/alumni_feeling/index'),
+        meta: { title: '个人风采', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'detail/:id',
+        name: 'feelingDetail',
+        component: () => import('@/views/system/alumni_feeling/feelingDetail'),
+        meta: { title: '个人风采详情', requireAuth: true },
+        hidden: true
+      },
+      {
+        path: 'edit/:id',
+        name: 'feelingEdit',
+        component: () => import('@/views/system/alumni_feeling/feelingAdd'),
+        meta: { title: '个人风采编辑', requireAuth: true },
+        hidden: true
+      }
+      ,
+      {
+        path: 'add',
+        name: 'feelingAdd',
+        component: () => import('@/views/system/alumni_feeling/feelingAdd'),
+        meta: { title: '个人风采添加', requireAuth: true },
+        hidden: true
+      }
+    ]
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载

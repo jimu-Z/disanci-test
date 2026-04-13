@@ -83,9 +83,13 @@ export default {
   methods: {
     // 获取我的留言
     async getMyMessage() {
-      const res = await getMyMessage()
-
-        this.messageList = res
+      try {
+        const res = await getMyMessage()
+        this.messageList = Array.isArray(res) ? res : []
+      } catch (e) {
+        this.messageList = []
+        this.$message.error('获取留言失败，请稍后重试')
+      }
 
     },
 
@@ -96,14 +100,18 @@ export default {
         return
       }
 
-      const res = await  addMessage(this.form)
+      try {
+        const res = await addMessage(this.form)
 
-      if (res.code === 200) {
-        this.$message.success('留言提交成功')
-        this.form = {  contact: '', content: '' }
-        this.getMyMessage()
-      } else {
-        this.$message.error(res.data.msg)
+        if (res.code === 200) {
+          this.$message.success('留言提交成功')
+          this.form = { contact: '', content: '' }
+          this.getMyMessage()
+        } else {
+          this.$message.error(res.msg || '留言提交失败')
+        }
+      } catch (e) {
+        this.$message.error('留言提交失败，请稍后重试')
       }
     },
 
@@ -114,12 +122,16 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
-        const res = await delMessage(id)
-        if (res.code === 200) {
-          this.$message.success('删除成功')
-          this.getMyMessage()
-        } else {
-          this.$message.error(res.data.msg)
+        try {
+          const res = await delMessage(id)
+          if (res.code === 200) {
+            this.$message.success('删除成功')
+            this.getMyMessage()
+          } else {
+            this.$message.error(res.msg || '删除失败')
+          }
+        } catch (e) {
+          this.$message.error('删除失败，请稍后重试')
         }
       })
     }

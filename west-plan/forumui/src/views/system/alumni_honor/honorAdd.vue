@@ -131,16 +131,14 @@ export default {
       // 1. 获取路由中的ID（动态路由参数）
       this.honorId = this.$route.params.id;
       if (!this.honorId) {
-        handleAdd()
+        this.handleAdd()
       } else {//编辑
         try {
-
-         getAlumni_honor(this.honorId).then(response => {
-        this.form = response.data
-        this.imagelist = response.data.honorAttach.split(',');
-        this.open = true
-        this.title = "修改校友荣誉彰"
-      })
+          const response = await getAlumni_honor(this.honorId)
+          this.form = response.data
+          this.imagelist = response.data.honorAttach ? response.data.honorAttach.split(',') : []
+          this.open = true
+          this.title = "修改校友荣誉彰"
 
           // console.log('editPostForm', this.editPostForm);
         } catch (error) {
@@ -181,16 +179,13 @@ export default {
     handleRemove(file, fileList) {
       // 文件移除时的处理逻辑，例如从fileList中移除文件等
       const index = this.imagelist.indexOf(file.url);
-      console.log(index + ":" + file.url)
-      alert(index + ":" + file.url)
       //从imagelist中移除文件
       if (index !== -1) {
         this.imagelist.splice(index, 1);
       }
-      console.log(this.imagelist)
       this.$refs.upload.fileList = this.imagelist;
       // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       } else {
         this.hasFile = false
@@ -245,15 +240,6 @@ export default {
     switchPreviewImage(imgUrl) {
       this.currentPreviewUrl = imgUrl;
     },
-    /** 查询校友荣誉彰列表 */
-    getList() {
-      this.loading = true
-      listAlumni_honor(this.queryParams).then(response => {
-        this.alumni_honorList = response.rows
-        this.total = response.total
-        this.loading = false
-      })
-    },
     // 取消按钮
     cancel() {
       this.open = false
@@ -273,16 +259,6 @@ export default {
         updateTime: null
       }
       this.resetForm("form")
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1
-      this.getList()
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm")
-      this.handleQuery()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -309,23 +285,24 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          this.form.userId = this.userId;
-          this.form.honorAttach = this.imagelist.join(',');
+      this.$refs["form"].validate(async valid => {
+        if (!valid) {
+          return
+        }
+        try {
+          this.form.userId = this.userId
+          this.form.honorAttach = this.imagelist.join(',')
           if (this.form.id != null) {
-            updateAlumni_honor(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功")
-              this.open = false
-              this.getList()
-            })
+            await updateAlumni_honor(this.form)
+            this.$modal.msgSuccess("修改成功")
           } else {
-            addAlumni_honor(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功")
-              this.open = false
-              this.getList()
-            })
+            await addAlumni_honor(this.form)
+            this.$modal.msgSuccess("新增成功")
           }
+          this.open = false
+          this.$router.back()
+        } catch (e) {
+          this.$message.error((e && e.message) || "提交失败，请稍后重试")
         }
       })
     },
@@ -335,8 +312,8 @@ export default {
       this.$modal.confirm('是否确认删除校友荣誉彰编号为"' + ids + '"的数据项？').then(function () {
         return delAlumni_honor(ids)
       }).then(() => {
-        this.getList()
         this.$modal.msgSuccess("删除成功")
+        this.$router.back()
       }).catch(() => { })
     },
     /** 导出按钮操作 */

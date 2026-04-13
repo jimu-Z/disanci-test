@@ -18,11 +18,18 @@
           <div class="time">{{ item.createTime }}</div>
         </div>
 
-        <div class="empty" v-if="list.length === 0">暂无数据</div>
+        <request-state
+          :loading="loading"
+          :error="Boolean(loadError)"
+          :empty="!loadError && list.length === 0"
+          empty-text="暂无数据"
+          error-text="新闻列表加载失败，请重试"
+          @retry="getList"
+        />
       </div>
 
       <el-pagination
-        v-if="total > 0"
+        v-if="total > 0 && !loadError"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="pageNum"
@@ -38,12 +45,18 @@
 <script>
 import { listNotice } from "@/api/system/notice";
 import { getDicts } from "@/api/system/dict/data";
+import RequestState from "@/components/RequestState"
 export default {
   name: "NoticeListPage",
+  components: {
+    RequestState
+  },
   data() {
     return {
       typeName: "",
       list: [],
+      loading: false,
+      loadError: '',
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -121,15 +134,29 @@ export default {
     },
 
     async getList() {
-      const res = await listNotice({
-        noticeType: this.noticeType,
-        status: 0,
-        pageNum: this.pageNum,
-        pageSize: this.pageSize
-      });
-      if (res.code === 200) {
-        this.list = res.rows;
-        this.total = res.total;
+      this.loading = true
+      this.loadError = ''
+      try {
+        const res = await listNotice({
+          noticeType: this.noticeType,
+          status: 0,
+          pageNum: this.pageNum,
+          pageSize: this.pageSize
+        });
+        if (res.code === 200) {
+          this.list = res.rows || [];
+          this.total = res.total || 0;
+        } else {
+          this.list = []
+          this.total = 0
+          this.loadError = 'load_failed'
+        }
+      } catch (e) {
+        this.list = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
+        this.loading = false
       }
     },
     goDetail(id) {

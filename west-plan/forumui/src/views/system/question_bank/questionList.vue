@@ -43,8 +43,17 @@
 
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && question_bankList.length === 0"
+      empty-text="暂无题库数据"
+      error-text="题库加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -56,14 +65,20 @@
 </template>
 
 <script>
-import { listQuestion_bank, getQuestion_bank, delQuestion_bank, addQuestion_bank, updateQuestion_bank } from "@/api/system/question_bank"
+import { listQuestion_bank } from "@/api/system/question_bank"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Question_bank",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      // 加载错误信息
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -102,18 +117,24 @@ export default {
   methods: {
      // 跳转到详情页
     toQuestionDetail(row) {
-      console.log(row)
       const postId = typeof row === 'object' ? row.id : row;
       this.$router.push({ path: `/system/question/detail/${postId}` });
     },
     /** 查询题库信息列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listQuestion_bank(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listQuestion_bank(this.queryParams)
         this.question_bankList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.question_bankList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -41,6 +41,28 @@ public class ForumCommentController extends BaseController
     private IForumCommentService forumCommentService;
 
     /**
+     * 查询论坛评论列表（管理端）
+     */
+    @ApiOperation("查询论坛评论列表")
+    @GetMapping("/list")
+    public TableDataInfo list(ForumComment forumComment)
+    {
+        startPage();
+        List<ForumComment> list = forumCommentService.selectForumCommentList(forumComment);
+        return getDataTable(list);
+    }
+
+    /**
+     * 获取论坛评论详细信息（管理端）
+     */
+    @ApiOperation("查询论坛评论详情")
+    @GetMapping("/{id}")
+    public AjaxResult getInfo(@PathVariable("id") Long id)
+    {
+        return success(forumCommentService.selectForumCommentById(id));
+    }
+
+    /**
      * 根据帖子ID查询评论树形结构（一级+子评论，无需权限）
      */
     @ApiOperation("根据帖子ID查询评论树形")
@@ -62,6 +84,17 @@ public class ForumCommentController extends BaseController
             @ApiParam(value = "评论参数", required = true) @Validated @RequestBody ForumCommentAddDTO dto
     ) {
         return toAjax(forumCommentService.addForumComment(dto));
+    }
+
+    /**
+     * 修改论坛评论（管理端）
+     */
+    @ApiOperation("修改论坛评论")
+    @Log(title = "论坛评论", businessType = BusinessType.UPDATE)
+    @PutMapping
+    public AjaxResult edit(@RequestBody ForumComment forumComment)
+    {
+        return toAjax(forumCommentService.updateForumComment(forumComment));
     }
 
     /**

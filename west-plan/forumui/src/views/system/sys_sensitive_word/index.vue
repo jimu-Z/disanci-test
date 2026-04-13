@@ -86,9 +86,18 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && sys_sensitive_wordList.length === 0"
+      empty-text="暂无敏感词数据"
+      error-text="敏感词数据加载失败，请重试"
+      @retry="getList"
+    />
     
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -112,13 +121,18 @@
 
 <script>
 import { listSys_sensitive_word, getSys_sensitive_word, delSys_sensitive_word, addSys_sensitive_word, updateSys_sensitive_word } from "@/api/system/sys_sensitive_word"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Sys_sensitive_word",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -164,13 +178,20 @@ export default {
   },
   methods: {
     /** 查询敏感词库列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listSys_sensitive_word(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listSys_sensitive_word(this.queryParams)
         this.sys_sensitive_wordList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.sys_sensitive_wordList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -41,8 +41,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <request-state
+        :loading="loading"
+        :error="Boolean(loadError)"
+        :empty="!loadError && userList.length === 0"
+        empty-text="暂无可选用户"
+        error-text="可选用户加载失败，请重试"
+        @retry="getList"
+      />
       <pagination
-        v-show="total>0"
+        v-show="total>0 && !loadError"
         :total="total"
         :page.sync="queryParams.pageNum"
         :limit.sync="queryParams.pageSize"
@@ -58,8 +66,12 @@
 
 <script>
 import { unallocatedUserList, authUserSelectAll } from "@/api/system/role"
+import RequestState from "@/components/RequestState"
 export default {
   dicts: ['sys_normal_disable'],
+  components: {
+    RequestState
+  },
   props: {
     // 角色编号
     roleId: {
@@ -70,6 +82,8 @@ export default {
     return {
       // 遮罩层
       visible: false,
+      loading: false,
+      loadError: '',
       // 选中数组值
       userIds: [],
       // 总条数
@@ -101,11 +115,20 @@ export default {
       this.userIds = selection.map(item => item.userId)
     },
     // 查询表数据
-    getList() {
-      unallocatedUserList(this.queryParams).then(res => {
+    async getList() {
+      this.loading = true
+      this.loadError = ''
+      try {
+        const res = await unallocatedUserList(this.queryParams)
         this.userList = res.rows
         this.total = res.total
-      })
+      } catch (e) {
+        this.userList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
+        this.loading = false
+      }
     },
     /** 搜索按钮操作 */
     handleQuery() {

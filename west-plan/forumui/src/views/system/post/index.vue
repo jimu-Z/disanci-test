@@ -115,8 +115,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && postList.length === 0"
+      empty-text="暂无岗位数据"
+      error-text="岗位数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -158,14 +167,19 @@
 
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from "@/api/system/post"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Post",
   dicts: ['sys_normal_disable'],
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -211,13 +225,20 @@ export default {
   },
   methods: {
     /** 查询岗位列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listPost(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listPost(this.queryParams)
         this.postList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.postList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

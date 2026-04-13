@@ -373,8 +373,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && student_admissionList.length === 0"
+      empty-text="暂无录取数据"
+      error-text="录取数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -515,12 +524,17 @@
 <script>
 import { listStudent_admission, getStudent_admission, delStudent_admission, addStudent_admission, updateStudent_admission } from "@/api/system/student_admission"
 import { getToken } from "@/utils/auth"
+import RequestState from "@/components/RequestState"
 export default {
   name: "Student_admission",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -612,13 +626,20 @@ export default {
   },
   methods: {
     /** 查询学生录取信息（西部计划/三支一扶等项目）列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listStudent_admission(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listStudent_admission(this.queryParams)
         this.student_admissionList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.student_admissionList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -16,9 +16,9 @@ export function getStudent_resume(id) {
     method: 'get'
   })
 }
-export function myResume( ) {
+export function myResume() {
   return request({
-    url: '/system/student_resume/myResume'  ,
+    url: '/system/student_resume/myResume',
     method: 'get'
   })
 }
@@ -50,6 +50,5 @@ export function delStudent_resume(id) {
   })
 }
 export function delResume(id) {
-
-
+  return delStudent_resume(id)
 }

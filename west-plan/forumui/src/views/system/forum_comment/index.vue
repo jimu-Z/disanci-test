@@ -58,7 +58,16 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && forum_commentList.length === 0"
+      empty-text="暂无评论数据"
+      error-text="评论加载失败，请重试"
+      @retry="getList"
+    />
+
+    <pagination v-show="total > 0 && !loadError" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
     <!-- 添加或修改论坛评论对话框 -->
@@ -91,9 +100,13 @@
 <script>
 import { listForum_comment, getForum_comment, delForum_comment, addForum_comment, updateForum_comment } from "@/api/system/forum_comment"
 import { uploadImage } from "@/api/system/uploadImage"
+import RequestState from "@/components/RequestState"
 import xss from 'xss'
 export default {
   name: "Forum_comment",
+  components: {
+    RequestState
+  },
   data() {
     return {
       //编辑器配置，防止恶意上传
@@ -112,6 +125,7 @@ export default {
       },
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -226,13 +240,20 @@ export default {
       })
     },
     /** 查询论坛评论列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listForum_comment(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listForum_comment(this.queryParams)
         this.forum_commentList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.forum_commentList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

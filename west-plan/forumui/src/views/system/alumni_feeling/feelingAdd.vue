@@ -308,60 +308,62 @@ computed: {
 
 
     /** 修改按钮操作 */
-    getFeeling(id) {
-
-      getAlumni_feeling(id).then(response => {
+    async getFeeling(id) {
+      try {
+        const response = await getAlumni_feeling(id)
         this.form = response.data
-        this.imagelist=response.data.picture.split(',');
+        this.imagelist = response.data.picture ? response.data.picture.split(',') : []
         this.open = true
         this.title = "修改校友工作感悟"
-      })
+      } catch (e) {
+        this.$message.error((e && e.message) || "获取信息失败")
+      }
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
+      this.$refs["form"].validate(async valid => {
+        if (!valid) {
+          return
+        }
 
-          this.form.userId=this.userId;
-          this.form.category=this.paraCategory;
-           this.form.likeCount =0
-           this.viewCount=0
+        try {
+          this.form.userId = this.userId
+          this.form.category = this.paraCategory
+          this.form.likeCount = 0
+          this.viewCount = 0
+          this.form.picture = this.imagelist.join(',')
 
-           this.form.picture=this.imagelist.join(',');
+          this.form.content = this.form.content.replace(/data:image\/[^"']+/g, '')
+          this.form.content = xss(this.form.content, {
+            whiteList: {
+              p: [],
+              br: [],
+              span: ['style'],
+              img: ['src', 'alt', 'width', 'height'],
+              strong: [],
+              em: [],
+              u: [],
+              ul: [],
+              li: [],
+              ol: []
+            }
+          })
 
-           this.form.content = this.form.content.replace(/data:image\/[^"']+/g, '') // 清除 base64
-            // 过滤危险标签：script/iframe/onclick/javascript:void(0)
-  this.form.content = xss(this.form.content, {
-    whiteList: {
-      p: [],
-      br: [],
-      span: ['style'],
-      img: ['src', 'alt', 'width', 'height'],
-      strong: [],
-      em: [],
-      u: [],
-      ul: [],
-      li: [],
-      ol: []
-    }
-  })
           if (this.form.id != null) {
-            updateAlumni_feeling(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功")
-              this.open = false
-              this.getList()
-            })
+            await updateAlumni_feeling(this.form)
+            this.$modal.msgSuccess("修改成功")
           } else {
-            addAlumni_feeling(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功")
-              this.open = false
-              this.getList()
-            })
+            await addAlumni_feeling(this.form)
+            this.$modal.msgSuccess("新增成功")
           }
-          this.imagelist=[]
+
+          this.imagelist = []
+          this.open = false
+          this.$router.back()
+        } catch (e) {
+          this.$message.error((e && e.message) || "提交失败，请稍后重试")
         }
       })
-         this.$router.go(-1)
     },
     /** 删除按钮操作 */
     handleDelete(row) {
@@ -369,10 +371,9 @@ computed: {
       this.$modal.confirm('是否确认删除校友工作感悟编号为"' + ids + '"的数据项？').then(function() {
         return delAlumni_feeling(ids)
       }).then(() => {
-        this.getList()
         this.$modal.msgSuccess("删除成功")
+        this.$router.back()
       }).catch(() => {})
-     this.$router.go(-1)
     },
 
 
@@ -409,13 +410,12 @@ computed: {
    //   console.log( this.imagelist)
       this.$refs.upload.fileList= this.imagelist;
      // this.imagelist = fileList; // 更新fileList以保持与上传组件同步
-      if (imagelist.length > 0) {
+      if (this.imagelist.length > 0) {
         this.hasFile = true
       }else {
         this.hasFile = false
         this.form.picture = null
       }
-      this.$router.go(-1)
     },
     handleDialogClose() {
       // 清空文件列表+重置预览状态

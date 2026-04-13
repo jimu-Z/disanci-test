@@ -147,8 +147,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && roleList.length === 0"
+      empty-text="暂无角色数据"
+      error-text="角色数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -254,14 +263,19 @@
 <script>
 import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect } from "@/api/system/role"
 import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Role",
   dicts: ['sys_normal_disable'],
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -346,14 +360,20 @@ export default {
   },
   methods: {
     /** 查询角色列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listRole(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listRole(this.addDateRange(this.queryParams, this.dateRange))
           this.roleList = response.rows
           this.total = response.total
+      } catch (e) {
+          this.roleList = []
+          this.total = 0
+          this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
           this.loading = false
-        }
-      )
+      }
     },
     /** 查询菜单树结构 */
     getMenuTreeselect() {

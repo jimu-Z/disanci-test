@@ -122,9 +122,18 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && wx_mp_configList.length === 0"
+      empty-text="暂无公众号配置数据"
+      error-text="公众号配置加载失败，请重试"
+      @retry="getList"
+    />
     
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -163,13 +172,18 @@
 
 <script>
 import { listWx_mp_config, getWx_mp_config, delWx_mp_config, addWx_mp_config, updateWx_mp_config } from "@/api/system/wx_mp_config"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Wx_mp_config",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -224,13 +238,20 @@ export default {
   },
   methods: {
     /** 查询微信公众号配置列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listWx_mp_config(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listWx_mp_config(this.queryParams)
         this.wx_mp_configList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.wx_mp_configList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

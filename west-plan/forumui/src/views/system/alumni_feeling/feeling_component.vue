@@ -42,6 +42,15 @@
       </div>
     </div>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && feelingList.length === 0"
+      empty-text="暂无个人风采数据"
+      error-text="个人风采加载失败，请重试"
+      @retry="getList"
+    />
+
     <el-dialog
       :title="currentItem.title"
       :visible.sync="detailVisible"
@@ -125,11 +134,16 @@
 
 <script>
 import { feelingWithUserList } from '@/api/system/alumni_feeling';
+import RequestState from '@/components/RequestState'
 export default {
   name: 'AlumniFeeling',
+  components: {
+    RequestState
+  },
   data() {
     return {
       loading: false,
+      loadError: '',
       showSearch: true,
       total: 0,
       queryParams: {
@@ -164,9 +178,11 @@ export default {
       return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
     },
 
-    getList() {
+    async getList() {
       this.loading = true
-      feelingWithUserList(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await feelingWithUserList(this.queryParams)
         this.feelingList = response.rows.map(item => {
           return {
             ...item,
@@ -187,8 +203,13 @@ export default {
           }
         })
         this.total = response.total
+      } catch (e) {
+        this.feelingList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     getCategoryName(category) {
       const categoryMap = {'1':'志愿故事','2':'成长感悟','3':'工作纪实','4':'生活日常'}

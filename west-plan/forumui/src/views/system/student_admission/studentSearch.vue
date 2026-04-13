@@ -116,8 +116,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && student_admissionList.length === 0"
+      empty-text="暂无校友检索数据"
+      error-text="校友检索数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -131,13 +140,18 @@ import { listStudent_admission, getStudent_admission } from "@/api/system/studen
 import { addFriendApply } from "@/api/system/student_search" // 导入好友申请接口
 import { getToken } from "@/utils/auth"
 import { getCurrentUserId } from "@/utils/auth" // 获取当前登录用户ID的工具函数
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Student_admission",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: false,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -221,17 +235,24 @@ export default {
   },
   methods: {
     /** 查询学生录取信息（西部计划/三支一扶等项目）列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listStudent_admission(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listStudent_admission(this.queryParams)
         // 为每条数据初始化好友申请状态
         this.student_admissionList = (response.rows || []).map(item => ({
           ...item,
           friendApplyStatus: item.friendApplyStatus || null // 从后端获取状态，如果没有则为null
         }))
         this.total = response.total
+      } catch (e) {
+        this.student_admissionList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -246,8 +246,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && student_applyList.length === 0"
+      empty-text="暂无报名数据"
+      error-text="报名数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -410,12 +419,17 @@
 <script>
 import { listStudent_apply, getStudent_apply, delStudent_apply, addStudent_apply, updateStudent_apply } from "@/api/system/student_apply"
 import { getToken } from "@/utils/auth"
+import RequestState from "@/components/RequestState"
 export default {
   name: "Student_apply",
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -524,14 +538,21 @@ export default {
   },
   methods: {
     /** 查询学生报名列表 */
-    getList() {
+    async getList() {
 
       this.loading = true
-      listStudent_apply(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listStudent_apply(this.queryParams)
         this.student_applyList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.student_applyList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

@@ -102,6 +102,15 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && menuList.length === 0"
+      empty-text="暂无菜单数据"
+      error-text="菜单数据加载失败，请重试"
+      @retry="getList"
+    />
+
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="680px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
@@ -303,15 +312,17 @@ import { listMenu, getMenu, delMenu, addMenu, updateMenu } from "@/api/system/me
 import Treeselect from "@riophae/vue-treeselect"
 import "@riophae/vue-treeselect/dist/vue-treeselect.css"
 import IconSelect from "@/components/IconSelect"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Menu",
   dicts: ['sys_show_hide', 'sys_normal_disable'],
-  components: { Treeselect, IconSelect },
+  components: { Treeselect, IconSelect, RequestState },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 显示搜索条件
       showSearch: true,
       // 菜单表格树数据
@@ -356,12 +367,18 @@ export default {
       this.form.icon = name
     },
     /** 查询菜单列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listMenu(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listMenu(this.queryParams)
         this.menuList = this.handleTree(response.data, "menuId")
+      } catch (e) {
+        this.menuList = []
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     /** 转换菜单数据结构 */
     normalizer(node) {

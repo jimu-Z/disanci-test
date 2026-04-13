@@ -88,7 +88,16 @@
               </el-table-column>
             </el-table>
 
-            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
+            <request-state
+              :loading="loading"
+              :error="Boolean(loadError)"
+              :empty="!loadError && userList.length === 0"
+              empty-text="暂无用户数据"
+              error-text="用户数据加载失败，请重试"
+              @retry="getList"
+            />
+
+            <pagination v-show="total > 0 && !loadError" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
           </el-col>
         </pane>
       </splitpanes>
@@ -207,15 +216,17 @@ import Treeselect from "@riophae/vue-treeselect"
 import "@riophae/vue-treeselect/dist/vue-treeselect.css"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "User",
   dicts: ['sys_normal_disable', 'sys_user_sex'],
-  components: { Treeselect, Splitpanes, Pane },
+  components: { Treeselect, Splitpanes, Pane, RequestState },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -332,14 +343,20 @@ export default {
   },
   methods: {
     /** 查询用户列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listUser(this.addDateRange(this.queryParams, this.dateRange))
           this.userList = response.rows
           this.total = response.total
+      } catch (e) {
+          this.userList = []
+          this.total = 0
+          this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
           this.loading = false
-        }
-      )
+      }
     },
     /** 查询部门下拉树结构 */
     getDeptTree() {

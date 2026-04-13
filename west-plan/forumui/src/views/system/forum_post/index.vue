@@ -90,10 +90,14 @@
             </div>
           </div>
 
-          <!-- 空数据占位 -->
-          <div class="empty-post" v-if="postList==null||postList.length === 0 && !loading">
-            <el-empty description="该板块暂无帖子，快来发布第一篇吧~"></el-empty>
-          </div>
+          <request-state
+            :loading="loading"
+            :error="loadError"
+            :empty="!loadError && (!postList || postList.length === 0)"
+            empty-text="该板块暂无帖子，快来发布第一篇吧~"
+            error-text="帖子加载失败，请重试"
+            @retry="getPostList"
+          />
         </div>
 
         <!-- 板块帖子分页列表 -->
@@ -162,9 +166,13 @@ import { enableList } from "@/api/system/forum_board"
 import { topHotList, newList, listForum_post } from "@/api/system/forum_post"
 import { formatTime } from '@/utils/utils';
 import { mapGetters } from 'vuex'
+import RequestState from "@/components/RequestState"
 
 export default {
   name: 'ForumIndex',
+  components: {
+    RequestState
+  },
   data() {
     return {
       boardList: [],
@@ -174,6 +182,7 @@ export default {
       newPostList: [],
       postList: [],
       loading: false,
+      loadError: false,
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -243,6 +252,7 @@ export default {
     },
     async getPostList() {
       this.loading = true;
+      this.loadError = false;
       try {
         const params = {
           pageNum: this.pageNum,
@@ -261,6 +271,7 @@ export default {
         console.error('获取帖子列表失败：', error);
         this.postList = [];
         this.total = 0;
+        this.loadError = true;
       } finally {
         this.loading = false;
       }

@@ -65,7 +65,16 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && content_auditList.length === 0"
+      empty-text="暂无内容审核数据"
+      error-text="内容审核加载失败，请重试"
+      @retry="getList"
+    />
+
+    <pagination v-show="total > 0 && !loadError" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
     <!-- 添加或修改内容审核记录对话框 -->
@@ -104,9 +113,13 @@
 <script>
 import { listContent_audit, getContent_audit, delContent_audit, addContent_audit, updateContent_audit } from "@/api/system/content_audit"
 import { uploadImage } from "@/api/system/uploadImage"
+import RequestState from "@/components/RequestState"
 import xss from 'xss'
 export default {
   name: "Content_audit",
+  components: {
+    RequestState
+  },
   data() {
     return {
       //编辑器配置，防止恶意上传
@@ -126,6 +139,7 @@ export default {
 
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -247,13 +261,20 @@ export default {
     },
 
     /** 查询内容审核记录列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listContent_audit(this.queryParams).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listContent_audit(this.queryParams)
         this.content_auditList = response.rows
         this.total = response.total
+      } catch (e) {
+        this.content_auditList = []
+        this.total = 0
+        this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
         this.loading = false
-      })
+      }
     },
     // 取消按钮
     cancel() {

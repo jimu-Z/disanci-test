@@ -139,8 +139,17 @@
       </el-table-column>
     </el-table>
 
+    <request-state
+      :loading="loading"
+      :error="Boolean(loadError)"
+      :empty="!loadError && configList.length === 0"
+      empty-text="暂无参数配置数据"
+      error-text="参数配置加载失败，请重试"
+      @retry="getList"
+    />
+
     <pagination
-      v-show="total>0"
+      v-show="total>0 && !loadError"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -182,14 +191,19 @@
 
 <script>
 import { listConfig, getConfig, delConfig, addConfig, updateConfig, refreshCache } from "@/api/system/config"
+import RequestState from "@/components/RequestState"
 
 export default {
   name: "Config",
   dicts: ['sys_yes_no'],
+  components: {
+    RequestState
+  },
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadError: '',
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -237,14 +251,20 @@ export default {
   },
   methods: {
     /** 查询参数列表 */
-    getList() {
+    async getList() {
       this.loading = true
-      listConfig(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      this.loadError = ''
+      try {
+        const response = await listConfig(this.addDateRange(this.queryParams, this.dateRange))
           this.configList = response.rows
           this.total = response.total
+      } catch (e) {
+          this.configList = []
+          this.total = 0
+          this.loadError = e && e.message ? e.message : 'load_failed'
+      } finally {
           this.loading = false
-        }
-      )
+      }
     },
     // 取消按钮
     cancel() {
