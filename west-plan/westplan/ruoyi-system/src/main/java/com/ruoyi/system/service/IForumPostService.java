@@ -3,6 +3,7 @@ package com.ruoyi.system.service;
 import java.util.List;
 
 import com.github.pagehelper.PageInfo;
+import com.ruoyi.system.domain.dto.ForumAudit;
 import com.ruoyi.system.domain.ForumPost;
 import com.ruoyi.system.domain.dto.ForumPostAddDTO;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,11 @@ public interface IForumPostService
      * 审核帖子
      */
     int auditPost(Long id, Integer auditStatus, String auditRemark);
+
+    /**
+     * 批量审核帖子
+     */
+    int batchAuditPost(ForumAudit forumAudit);
 
     /**
      * 置顶/取消置顶帖子

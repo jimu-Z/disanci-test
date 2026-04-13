@@ -35,6 +35,11 @@ public interface ForumPostMapper
     int incrementCount(@Param("id") Long id, @Param("column") String column);
     /** 数值自减（点赞/收藏/评论） */
     int decrementCount(@Param("id") Long id, @Param("column") String column);
+    /** 审核状态变更（并发保护：仅待审核/驳回可更新） */
+    int updateAuditStatus(@Param("id") Long id,
+                          @Param("auditStatus") Integer auditStatus,
+                          @Param("auditRemark") String auditRemark,
+                          @Param("updateBy") String updateBy);
     /** 批量删除帖子 */
     int deletePostByIds(@Param("ids") Long[] ids);
 

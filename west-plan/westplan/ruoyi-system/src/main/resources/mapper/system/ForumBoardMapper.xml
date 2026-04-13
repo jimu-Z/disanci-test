@@ -22,7 +22,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 基础CRUD（MyBatis Generator生成） -->
     <select id="selectByPrimaryKey" resultMap="ForumBoardResult" parameterType="java.lang.Long">
         <include refid="selectForumBoardVo"/>
-        from forum_board
         where id = #{id,jdbcType=BIGINT}
     </select>
 

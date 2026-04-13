@@ -80,6 +80,12 @@ public class ForumBoardServiceImpl implements IForumBoardService
 
     @Override
     public int deleteForumBoardById(Long id) {
-        return 0;
+        if (id == null) {
+            throw new ServiceException("板块ID不能为空");
+        }
+        if (forumBoardMapper.countPostByBoardIds(new Long[] { id }) > 0) {
+            throw new ServiceException("板块下存在帖子，无法删除");
+        }
+        return forumBoardMapper.deleteByPrimaryKey(id);
     }
 }

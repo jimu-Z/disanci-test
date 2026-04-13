@@ -135,7 +135,7 @@ export default {
       currentPreviewUrl: "", // 当前预览URL
       // 标记当前上传组件有无文件
       hasFile: false,
-    fileAction: process.env.VUE_APP_BASE_API + '/system/alumni_honor/uploadImage', // 上传文件服务器地址
+    fileAction: process.env.VUE_APP_BASE_API + '/system/forum_post/uploadImage', // 上传文件服务器地址
       filesAction: process.env.VUE_APP_BASE_API + '/common/uploads', // 上传文件服务器地址
       // 标记当前是不是在上传
       imageOnUploading: false,

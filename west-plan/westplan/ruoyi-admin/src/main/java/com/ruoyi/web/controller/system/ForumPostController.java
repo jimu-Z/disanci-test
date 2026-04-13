@@ -3,9 +3,8 @@ package com.ruoyi.web.controller.system;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.pagehelper.PageInfo;
 import com.ruoyi.common.config.RuoYiConfig;
-import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.annotation.RepeatSubmit;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.MimeTypeUtils;
 import com.ruoyi.system.domain.dto.ForumAudit;
@@ -113,6 +112,7 @@ public class ForumPostController extends BaseController
      */
     @ApiOperation("发布论坛帖子")
     @Log(title = "论坛帖子", businessType = BusinessType.INSERT)
+    @RepeatSubmit(interval = 3000)
     @PostMapping
     public AjaxResult add(
             @ApiParam(value = "帖子发布参数", required = true) @Validated @RequestBody ForumPostAddDTO dto
@@ -125,6 +125,7 @@ public class ForumPostController extends BaseController
      */
     @ApiOperation("修改论坛帖子")
     @Log(title = "论坛帖子", businessType = BusinessType.UPDATE)
+    @RepeatSubmit(interval = 3000)
     @PutMapping
     public AjaxResult edit(   @ApiParam(value = "帖子发布参数", required = true) @Validated @RequestBody ForumPostAddDTO dto) {
 
@@ -139,9 +140,12 @@ public class ForumPostController extends BaseController
     @ApiOperation("帖子审核")
     @PreAuthorize("@ss.hasPermi('system:forum_post:audit')")
     @Log(title = "论坛帖子", businessType = BusinessType.UPDATE)
+    @RepeatSubmit(interval = 2000)
     @PutMapping("/audit")
-    public AjaxResult audit( @RequestBody ForumPost dto    ) {
-
+    public AjaxResult audit(@Validated @RequestBody ForumAudit dto) {
+        if (dto.getId() == null) {
+            return AjaxResult.error("帖子ID不能为空");
+        }
         return toAjax(forumPostService.auditPost(dto.getId(), dto.getAuditStatus(), dto.getAuditRemark()));
     }
 
@@ -152,16 +156,13 @@ public class ForumPostController extends BaseController
     @ApiOperation("帖子审核")
     @PreAuthorize("@ss.hasPermi('system:forum_post:audit')")
     @Log(title = "论坛帖子", businessType = BusinessType.UPDATE)
+    @RepeatSubmit(interval = 2000)
     @PutMapping("/batchAudit")
-    public AjaxResult batchAudit( @RequestBody ForumAudit forumAudit    ) {
-
-        Long[] ids=forumAudit.getIds();
-        int flag=0;
-        for(int i=0;i<ids.length;i++){
-             flag=forumPostService.auditPost(ids[i], forumAudit.getAuditStatus(),forumAudit.getAuditRemark());
+    public AjaxResult batchAudit(@Validated @RequestBody ForumAudit forumAudit) {
+        if (forumAudit.getIds() == null || forumAudit.getIds().length == 0) {
+            return AjaxResult.error("请选择待审核帖子");
         }
-
-       return toAjax(flag);
+         return toAjax(forumPostService.batchAuditPost(forumAudit));
     }
     /**
      * 帖子置顶/取消置顶（管理员）

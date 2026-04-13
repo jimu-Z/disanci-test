@@ -4,19 +4,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 
 import com.ruoyi.system.domain.CommonInteract;
+import com.ruoyi.system.domain.ForumBoard;
+import com.ruoyi.system.domain.dto.ForumAudit;
 import com.ruoyi.system.domain.dto.ForumPostAddDTO;
 import com.ruoyi.system.mapper.CommonInteractMapper;
+import com.ruoyi.system.mapper.ForumBoardMapper;
 import com.ruoyi.system.mapper.ForumCommentMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.ForumPostMapper;
 import com.ruoyi.system.domain.ForumPost;
@@ -34,6 +37,8 @@ import javax.annotation.Resource;
 @Service
 public class ForumPostServiceImpl implements IForumPostService 
 {
+    private static final Logger log = LoggerFactory.getLogger(ForumPostServiceImpl.class);
+
     @Resource
     private ForumPostMapper forumPostMapper;
     @Resource
@@ -41,6 +46,8 @@ public class ForumPostServiceImpl implements IForumPostService
 
     @Resource
     private CommonInteractMapper commonInteractMapper;
+    @Resource
+    private ForumBoardMapper forumBoardMapper;
     @Resource
     private RedisCache redisCache;
 
@@ -98,7 +105,18 @@ public class ForumPostServiceImpl implements IForumPostService
     public int addForumPost(ForumPostAddDTO dto) {
         // 1. 获取当前登录用户
         SysUser user = SecurityUtils.getLoginUser().getUser();
-        // 2. 转换DTO为实体
+        // 2. 业务校验
+        if (dto.getBoardId() == null) {
+            throw new ServiceException("板块不能为空");
+        }
+        if (StringUtils.isBlank(dto.getPostTitle()) || StringUtils.isBlank(dto.getPostContent())) {
+            throw new ServiceException("帖子标题和内容不能为空");
+        }
+        ForumBoard board = forumBoardMapper.selectByPrimaryKey(dto.getBoardId());
+        if (board == null || board.getStatus() == null || board.getStatus() != 1) {
+            throw new ServiceException("板块不存在或已禁用");
+        }
+        // 3. 转换DTO为实体
         ForumPost post = new ForumPost();
         post.setBoardId(dto.getBoardId());
         post.setUserId(user.getUserId());
@@ -118,7 +136,7 @@ public class ForumPostServiceImpl implements IForumPostService
         // 填充创建人信息
         post.setCreateBy(user.getUserName());
         post.setUpdateBy(user.getUserName());
-        // 3. 插入帖子
+        // 4. 插入帖子
         return forumPostMapper.insertSelective(post);
     }
 
@@ -160,11 +178,44 @@ public class ForumPostServiceImpl implements IForumPostService
         if (post == null) {
             throw new ServiceException("帖子不存在");
         }
-        post.setAuditStatus(auditStatus);
-        post.setAuditRemark(auditRemark);
-        post.setUpdateBy(SecurityUtils.getLoginUser().getUsername());
+        if (auditStatus == null || (auditStatus != 1 && auditStatus != 2)) {
+            throw new ServiceException("审核状态不合法");
+        }
+        if (post.getAuditStatus() != null && post.getAuditStatus() != 0 && post.getAuditStatus() != 2) {
+            throw new ServiceException("当前帖子状态不允许再次审核");
+        }
+        if (auditStatus == 2 && StringUtils.isBlank(auditRemark)) {
+            throw new ServiceException("驳回时必须填写审核备注");
+        }
+        String operator = SecurityUtils.getLoginUser().getUsername();
+        Integer beforeStatus = post.getAuditStatus();
+        String targetRemark = auditStatus == 1 ? "" : auditRemark;
 
-        return forumPostMapper.updateByPrimaryKeySelective(post);
+        int rows = forumPostMapper.updateAuditStatus(id, auditStatus, targetRemark, operator);
+        if (rows == 0) {
+            throw new ServiceException("帖子状态已变更，请刷新后重试");
+        }
+
+        log.info("forum post audit: operator={}, postId={}, beforeStatus={}, afterStatus={}, auditRemark={}",
+                operator, id, beforeStatus, auditStatus, StringUtils.defaultString(targetRemark));
+        return rows;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int batchAuditPost(ForumAudit forumAudit) {
+        if (forumAudit == null || forumAudit.getIds() == null || forumAudit.getIds().length == 0) {
+            throw new ServiceException("请选择待审核帖子");
+        }
+        int rows = 0;
+        String operator = SecurityUtils.getLoginUser().getUsername();
+        log.info("forum post batch audit start: operator={}, ids={}, status={}",
+                operator, forumAudit.getIds().length, forumAudit.getAuditStatus());
+        for (Long id : forumAudit.getIds()) {
+            rows += auditPost(id, forumAudit.getAuditStatus(), forumAudit.getAuditRemark());
+        }
+        log.info("forum post batch audit end: operator={}, successRows={}", operator, rows);
+        return rows;
     }
 
     @Override
@@ -254,6 +305,9 @@ public class ForumPostServiceImpl implements IForumPostService
      * @param column 数据库字段名
      */
     private void handleInteract(Long postId, Integer interactType, String column) {
+        if (!ALLOWED_COUNTER_COLUMNS.contains(column)) {
+            throw new ServiceException("非法计数字段");
+        }
         // 1. 校验帖子存在
         if (forumPostMapper.selectByPrimaryKey(postId) == null) {
             throw new ServiceException("帖子不存在");
@@ -275,9 +329,6 @@ public class ForumPostServiceImpl implements IForumPostService
             commonInteractMapper.insertCommonInteract(newInteract);
             forumPostMapper.incrementCount(postId, column);
         } else {
-        if (!ALLOWED_COUNTER_COLUMNS.contains(column)) {
-            throw new ServiceException("非法计数字段");
-        }
             // 已互动：删除记录+数值自减
             commonInteractMapper.deleteInteractByUser(
                     userId, TARGET_TYPE_POST, postId, interactType

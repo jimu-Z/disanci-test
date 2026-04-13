@@ -18,11 +18,13 @@ import java.util.Map;
 @RequestMapping("/system/message")
 public class MessageController extends BaseController {
 
+    private static final String MESSAGE_REPLY_PERM = "@ss.hasPermi('system:message:reply')";
+
         @Resource
         private IMessageService messageService;
 
         // ========== 管理员接口 ==========
-        @PreAuthorize("@ss.hasPermi('system:alumni_honor:reply')")
+    @PreAuthorize(MESSAGE_REPLY_PERM)
         @GetMapping("/admin/list")
         public TableDataInfo adminList( Message message){
             startPage();
@@ -30,7 +32,7 @@ public class MessageController extends BaseController {
 
             return getDataTable(list);
         }
-        @PreAuthorize("@ss.hasPermi('system:alumni_honor:reply')")
+    @PreAuthorize(MESSAGE_REPLY_PERM)
         @PostMapping("/admin/reply")
         public AjaxResult reply(@RequestBody Message message){
 

@@ -33,6 +33,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result column="board_name" property="boardName" jdbcType="VARCHAR"/>
         <result column="nick_name" property="userName" jdbcType="VARCHAR"/>
         <result column="avatar" property="avatar" jdbcType="VARCHAR"/>
+        <result column="is_liked" property="isLiked" jdbcType="INTEGER"/>
+        <result column="is_collected" property="isCollected" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -182,14 +184,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="isTop != null and isTop == 1">and p.is_top = 1</if>
             <if test="startTime != null and startTime != ''">and date_format(p.create_time, '%Y-%m-%d') &gt;= #{startTime}</if>
             <if test="endTime != null and endTime != ''">and date_format(p.create_time, '%Y-%m-%d') &lt;= #{endTime}</if>
-            <!-- 普通用户仅看公开+审核通过的帖子 -->
-            <if test="auditStatus == null ">
-                and p.audit_status = 1
-                and p.is_public = 1
+            <if test="auditStatus == null and userId != null">
+                and ((p.audit_status = 1 and p.is_public = 1) or p.user_id = #{userId})
             </if>
-        <if test=" userId != null">
-           or p.user_id = #{userId}
-        </if>
+            <if test="auditStatus == null and userId == null">
+                and p.audit_status = 1 and p.is_public = 1
+            </if>
         </where>
         order by p.is_top desc, p.is_hot desc, p.create_time desc
     </select>
@@ -224,8 +224,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectPostDetailById" resultMap="PostResultMap" parameterType="map">
         select p.*, b.board_name, u.nick_name, u.avatar,
-               (select count(1) from forum_interact where post_id = p.id and user_id = #{currentUserId} and type = 1) as is_liked,
-               (select count(1) from forum_interact where post_id = p.id and user_id = #{currentUserId} and type = 2) as is_collected
+               (select case when count(1) > 0 then 1 else 0 end
+                from common_interact
+                where target_type = 1 and target_id = p.id and user_id = #{currentUserId} and interact_type = 1) as is_liked,
+               (select case when count(1) > 0 then 1 else 0 end
+                from common_interact
+                where target_type = 1 and target_id = p.id and user_id = #{currentUserId} and interact_type = 2) as is_collected
         from forum_post p
                  left join forum_board b on p.board_id = b.id
                  left join sys_user u on p.user_id = u.user_id
@@ -254,6 +258,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <update id="decrementCount">
         update forum_post set ${column} = ${column} - 1 where id = #{id} and ${column} > 0
+    </update>
+
+    <update id="updateAuditStatus" parameterType="map">
+        update forum_post
+        set audit_status = #{auditStatus},
+            audit_remark = #{auditRemark},
+            update_by = #{updateBy},
+            update_time = now()
+        where id = #{id}
+          and audit_status in (0, 2)
     </update>
 
     <delete id="deletePostByIds">
